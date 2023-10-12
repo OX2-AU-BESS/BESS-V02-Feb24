@@ -110,8 +110,8 @@ def main_solve(month, year,folder_path):
                     'marginal_loss_factor_load':plant_info['marginal_loss_factor_load'],
                     'round_trip_efficiency':plant_info['round_trip_efficiency'],
                     'location':plant_info['location']+'1',
-                    'bat_deg_profile':InputFolderPath + "\\"+r"Degradation Profiles"+"\\" + plant_info['bat_deg_profile'],
-                    'solar_gen_profile':InputFolderPath + "\\"+r"Solar Generation Profiles"+"\\" + plant_info['solar_gen_profile'],
+                    'bat_deg_profile':InputFolderPath + "\\" + plant_info['bat_deg_profile'],
+                    'solar_gen_profile':InputFolderPath +"\\" + plant_info['solar_gen_profile'],
                     }
     
     scenario_parameters={
