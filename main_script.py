@@ -32,6 +32,12 @@ def format_date(month, year):
     return dt.datetime(year, month, 1).strftime("%d/%m/%Y")
 
 def create_folder(directory):
+
+    parent_directory  = os.path.dirname(directory)
+    # Check if the Output folder already exists,otherwise make it
+    if not os.path.exists(parent_directory):
+        os.mkdir(parent_directory)
+
     # Check if the folder already exists
     if os.path.exists(directory):
         print(f"Folder '{directory}' already exists.")
@@ -61,12 +67,27 @@ def main_solve(month, year,folder_path):
     end_date = first_day_of_next_month(start_date)
     
     # ------------- refer the script to the relevant documents ---------------
-    username = '341510anla' # Change this parameter to the username of the computer profile this script is being run on. sim mac: Esco-nas01, Angus PC: 10.0.0.210
-    path=r"C:\Users\{}\OneDrive - OX2\Data\18. Grid\BESS Model Remote\Basic BESS Inputs".format(username)+r"\\"
-    project_information = path + "Project information_template.xlsx"
-    output_directory = folder_path
-    forecast_path = path + r"NSW1_dispatch_results.csv"
-    actual_path =  path + r"Aurora\Australia 2022 Q3 (Low)_nsw"
+    # username = '341510anla' # Change this parameter to the username of the computer profile this script is being run on. sim mac: Esco-nas01, Angus PC: 10.0.0.210
+    # path=r"C:\Users\{}\OneDrive - OX2\Data\18. Grid\BESS Model Remote\Basic BESS Inputs".format(username)+r"\\"
+    # project_information = path + "Project information_template.xlsx"
+
+    Current_directory   = os.getcwd()
+    Parent_directory    = os.path.dirname(Current_directory)
+    Input_folder        = "Input"
+    Input_templateXlsx  = r"Project information_template.xlsx"
+    project_information = os.path.join(Parent_directory, Input_folder, Input_templateXlsx)
+
+
+    output_directory    = folder_path
+    Dispatch_results    = r"NSW1_dispatch_results.csv"
+    forecast_path       = os.path.join(Parent_directory, Input_folder, Dispatch_results)
+
+    Price_FolderFile    = r"Aurora\Australia 2022 Q3 (Low)_nsw"
+    actual_path         = os.path.join(Parent_directory, Input_folder, Price_FolderFile)
+
+    # forecast_path = path + r"NSW1_dispatch_results.csv"
+    # actual_path =  path + r"Aurora\Australia 2022 Q3 (Low)_nsw"
+    InputFolderPath    = os.path.join(Parent_directory,Input_folder)
                     
     plant_info=pd.read_excel(project_information, sheet_name='generator')
     plant_info=dict(zip(plant_info['identifier'], plant_info['value']))
@@ -89,8 +110,8 @@ def main_solve(month, year,folder_path):
                     'marginal_loss_factor_load':plant_info['marginal_loss_factor_load'],
                     'round_trip_efficiency':plant_info['round_trip_efficiency'],
                     'location':plant_info['location']+'1',
-                    'bat_deg_profile':path + r"Degradation Profiles\\" + plant_info['bat_deg_profile'],
-                    'solar_gen_profile':path + r"Solar Generation Profiles\\" + plant_info['solar_gen_profile'],
+                    'bat_deg_profile':InputFolderPath + "\\"+r"Degradation Profiles"+"\\" + plant_info['bat_deg_profile'],
+                    'solar_gen_profile':InputFolderPath + "\\"+r"Solar Generation Profiles"+"\\" + plant_info['solar_gen_profile'],
                     }
     
     scenario_parameters={
@@ -150,8 +171,14 @@ if __name__ == "__main__":
     for i in range(0,dur):
         years.append(2025+i)
     
-    start_time = time.time()
-    folder_path = r"C:\Users\341510anla\OneDrive - OX2\Data\18. Grid\BESS Model Remote\Basic BESS Inputs\Output\\" + time.strftime("%B-%d %H_%M", time.localtime(start_time)) +"SUNSSF_40MW_4hr_results"
+    start_time        = time.time()
+    current_directory = os.getcwd()
+    parent_directory  = os.path.dirname(current_directory)
+    OutPut_directory  = "Output"
+    File_Path         = time.strftime("%B-%d %H_%M", time.localtime(start_time)) +"SUNSSF_40MW_4hr_results"
+    folder_path       = os.path.join(parent_directory, OutPut_directory, File_Path)
+
+    # folder_path = r"C:\Users\341510anla\OneDrive - OX2\Data\18. Grid\BESS Model Remote\Basic BESS Inputs\Output\\" + time.strftime("%B-%d %H_%M", time.localtime(start_time)) +"SUNSSF_40MW_4hr_results"
     create_folder(folder_path)
     
     df = run_script_multiprocessing(months, years,folder_path)
