@@ -83,7 +83,7 @@ def main_solve(month, year,folder_path):
     forecast_path       = os.path.join(Parent_directory, Input_folder, Dispatch_results)
 
     Price_FolderFile    = r"Aurora\Australia 2022 Q3 (Low)_nsw"
-    actual_path         = os.path.join(Parent_directory, Input_folder, Price_FolderFile)
+    actual_path         = os.path.join(Parent_directory, Input_folder)
 
     # forecast_path = path + r"NSW1_dispatch_results.csv"
     # actual_path =  path + r"Aurora\Australia 2022 Q3 (Low)_nsw"
@@ -135,7 +135,7 @@ def main_solve(month, year,folder_path):
                       'forecast_res':solver_info['forecast_res'], #time resolution of the forecast data to be used.
                       'forecast_data_path':forecast_path,
                       'revenue_method':solver_info['revenue_method'],
-                      'actual_data_path':actual_path + solver_info['actual_data_path'],
+                      'actual_data_path':os.path.join(actual_path, solver_info['actual_data_path']),
                       'output_directory':output_directory
                       }
     
