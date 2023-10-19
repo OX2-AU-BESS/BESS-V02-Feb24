@@ -6,17 +6,18 @@ Main script in which we define the generator and scenario for which we woudl lik
 
 @author: Mervin
 """
-import datetime as dt
+import datetime                            as dt
 import multiprocessing
 import os
 import time
-from generator import Generator as gen
-from scenario import Scenario as scn
+import pandas                              as pd
 import dispatch_optimiser
-from dispatch_optimiser import dispatch_optimiser
-import pandas as pd
-  
+from   dispatch_optimiser import dispatch_optimiser
+from   generator          import Generator as gen
+from   scenario           import Scenario  as scn  
 
+#========================================================================================
+# ============== ======================================= 
 def first_day_of_next_month(date_str):
     # Assuming the date is in the format "dd/mm/yyyy"
     day, month, year = map(int, date_str.split('/'))
@@ -28,43 +29,45 @@ def first_day_of_next_month(date_str):
         year += 1
     return dt.datetime(year, month, day).strftime("%d/%m/%Y")
 
+#========================================================================================
+# ============== ======================================= 
 def format_date(month, year):
     return dt.datetime(year, month, 1).strftime("%d/%m/%Y")
 
+#========================================================================================
+# ============== Creat directory for output folder======================================= 
 def create_folder(directory):
 
-    parent_directory  = os.path.dirname(directory)
-    # Check if the Output folder already exists,otherwise make it
+    # Check if the parent folder "Output" already exists, otherwise Create it
+    parent_directory = os.path.dirname(directory)
     if not os.path.exists(parent_directory):
         os.mkdir(parent_directory)
 
-    # Check if the folder already exists
-    if os.path.exists(directory):
-        print(f"Folder '{directory}' already exists.")
-    else:
-        # Create a new folder
-        os.mkdir(directory)
-        print(f"Folder '{directory}' has been created.")
+    # Check if the folder already exists, otherwise Create a new folder
+    if not os.path.exists(directory       ):
+        os.mkdir(directory       )
 
-def run_script_multiprocessing(months, years,folder_path):
+#========================================================================================
+# ============== Parallel computation: Distributing computations on several cores ======= 
+def run_script_multiprocessing(months, years, folder_path):
     # Get number of cores available: 
     num_cores = multiprocessing.cpu_count()
     print(f"Number of CPU cores: {num_cores}")
-    pool = multiprocessing.Pool(processes=num_cores)
-    
-            
+    pool      = multiprocessing.Pool(processes=num_cores)
+                
     # Generate all possible combinations of months and years
-    month_year_combinations = [(month, year) for year in years for month in months]
-    pool.starmap(main_solve, [(month, year,folder_path) for month, year in month_year_combinations])
+    month_year_combinations = [(month, year             ) for year        in years                   for month in months]
+    pool. starmap(main_solve, [(month, year, folder_path) for month, year in month_year_combinations                    ])
         
     pool.close()
     pool.join()
     
-
+#========================================================================================
+# ============== ======================================= 
 def main_solve(month, year,folder_path):
    
-    start_date = format_date(month, year) 
-    end_date = first_day_of_next_month(start_date)
+    start_date = format_date            (month, year) 
+    end_date   = first_day_of_next_month(start_date )
     
     # ------------- refer the script to the relevant documents ---------------
     # username = '341510anla' # Change this parameter to the username of the computer profile this script is being run on. sim mac: Esco-nas01, Angus PC: 10.0.0.210
@@ -156,6 +159,8 @@ def main_solve(month, year,folder_path):
     #report.init(output_directory, "full") #report object allows to specify type of report that we want. This can be refined quite a bit and can take more input parameters.
     #report.generate_report(generator, scn, optimisation.results)
 
+#========================================================================================
+# ============== ======================================= 
 r"""
 start_time = time.time()
 folder_path = r"C:\Users\341510anla\OneDrive - OX2\Data\18. Grid\BESS Model Remote\Basic BESS Inputs\Output\\" + time.strftime("%B-%d %H_%M", time.localtime(start_time)) +"_45MW_2hr_results"
@@ -163,22 +168,21 @@ create_folder(folder_path)
 main_solve(4, 2025,folder_path)
 """
 if __name__ == "__main__":
-    months = [1, 2, 3,4,5,6,7,8,9,10,11,12]
+    months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     # duration of opt in years
-    dur= 30
+    dur   = 30
     years = [] 
     # Add the desired range of years
     for i in range(0,dur):
         years.append(2025+i)
     
-    start_time        = time.time()
-    current_directory = os.getcwd()
-    parent_directory  = os.path.dirname(current_directory)
+    start_time        = time . time  ()
+    current_directory = os   . getcwd()
+    parent_directory  = os   . path. dirname(current_directory)
     OutPut_directory  = "Output"
-    File_Path         = time.strftime("%B-%d %H_%M", time.localtime(start_time)) +"SUNSSF_40MW_4hr_results"
-    folder_path       = os.path.join(parent_directory, OutPut_directory, File_Path)
+    File_Path         = time . strftime("%B-%d %H_%M", time. localtime(start_time)) +" "+"SUNSSF_40MW_4hr_results"
+    folder_path       = os   . path. join (parent_directory, OutPut_directory, File_Path)
 
-    # folder_path = r"C:\Users\341510anla\OneDrive - OX2\Data\18. Grid\BESS Model Remote\Basic BESS Inputs\Output\\" + time.strftime("%B-%d %H_%M", time.localtime(start_time)) +"SUNSSF_40MW_4hr_results"
     create_folder(folder_path)
     
     df = run_script_multiprocessing(months, years,folder_path)
