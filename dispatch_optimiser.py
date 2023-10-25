@@ -229,10 +229,10 @@ class dispatch_optimiser:
                 elapsed_time = end_time_act - start_time_act
             else:
                 print("Data not available for the current date nominated \n")
-                current_time += time_resolution
+                current_time  += time_resolution
                 start_time_act = time.time()
-                end_time_act = time.time()
-                elapsed_time = end_time_act - start_time_act
+                end_time_act   = time.time()
+                elapsed_time   = end_time_act - start_time_act
                 pass
             
             print("Elapsed time:", round(elapsed_time,2), "seconds")
@@ -244,44 +244,43 @@ class dispatch_optimiser:
         #print("finished")
            
             
-
         #return results vector consisting of data frame containing:
             #intermediate dispatch solutions (BESS and solar), 
             #final dispatch (BESS and Solar), 
             #revenue for individual markets, 
             #final price for everything
         
-        self.results=pd.DataFrame({'timestamp':self.timestamps,
-                                   'bess_dsp_energy':self.bess_dsp_energy, 
-                                   'solar_dsp_energy':self.solar_dsp_energy,
-                                   'raise6sec': self.raise6s, 
-                                   'raise60sec': self.raise60s, 
-                                   'raise5min': self.raise5min, 
-                                   'raisereg': self.raisereg, 
-                                   'lower6s': self.lower6s, 
-                                   'lower60s': self.lower60s, 
-                                   'lower5min': self.lower5min, 
-                                   'lowerreg': self.lowerreg,
-                                   'bess_combined': self.bess_combined_output, 
-                                   'SOC_profile': self.SOC_profile,
-                                   'RRP_energy': self.RRP_energy,
-                                   'RRP_raise6sec': self.RRP_raise6s, 
-                                   'RRP_raise60sec': self.RRP_raise60s, 
-                                   'RRP_raise5min': self.RRP_raise5min, 
-                                   'RRP_raisereg': self.RRP_raisereg, 
-                                   'RRP_lower6s': self.RRP_lower6s, 
-                                   'RRP_lower60s': self.RRP_lower60s, 
-                                   'RRP_lower5min': self.RRP_lower5min, 
-                                   'RRP_lowerreg': self.RRP_lowerreg,
-                                   'foreRRP_energy': self.foreRRP_energy,
-                                   'foreRRP_raise6sec': self.foreRRP_raise6s, 
-                                   'foreRRP_raise60sec': self.foreRRP_raise60s, 
-                                   'foreRRP_raise5min': self.foreRRP_raise5min, 
-                                   'foreRRP_raisereg': self.foreRRP_raisereg, 
-                                   'foreRRP_lower6s': self.foreRRP_lower6s, 
-                                   'foreRRP_lower60s': self.foreRRP_lower60s, 
-                                   'foreRRP_lower5min': self.foreRRP_lower5min, 
-                                   'foreRRP_lowerreg': self.foreRRP_lowerreg,
+        self.results=pd.DataFrame({'timestamp'              :self.timestamps,
+                                   'bess_dsp_energy'        :self.bess_dsp_energy, 
+                                   'solar_dsp_energy'       :self.solar_dsp_energy,
+                                   'raise6sec'              : self.raise6s, 
+                                   'raise60sec'             : self.raise60s, 
+                                   'raise5min'              : self.raise5min, 
+                                   'raisereg'               : self.raisereg, 
+                                   'lower6s'                : self.lower6s, 
+                                   'lower60s'               : self.lower60s, 
+                                   'lower5min'              : self.lower5min, 
+                                   'lowerreg'               : self.lowerreg,
+                                   'bess_combined'          : self.bess_combined_output, 
+                                   'SOC_profile'            : self.SOC_profile,
+                                   'RRP_energy'             : self.RRP_energy,
+                                   'RRP_raise6sec'          : self.RRP_raise6s, 
+                                   'RRP_raise60sec'         : self.RRP_raise60s, 
+                                   'RRP_raise5min'          : self.RRP_raise5min, 
+                                   'RRP_raisereg'           : self.RRP_raisereg, 
+                                   'RRP_lower6s'            : self.RRP_lower6s, 
+                                   'RRP_lower60s'           : self.RRP_lower60s, 
+                                   'RRP_lower5min'          : self.RRP_lower5min, 
+                                   'RRP_lowerreg'           : self.RRP_lowerreg,
+                                   'foreRRP_energy'         : self.foreRRP_energy,
+                                   'foreRRP_raise6sec'      : self.foreRRP_raise6s, 
+                                   'foreRRP_raise60sec'     : self.foreRRP_raise60s, 
+                                   'foreRRP_raise5min'      : self.foreRRP_raise5min, 
+                                   'foreRRP_raisereg'       : self.foreRRP_raisereg, 
+                                   'foreRRP_lower6s'        : self.foreRRP_lower6s, 
+                                   'foreRRP_lower60s'       : self.foreRRP_lower60s, 
+                                   'foreRRP_lower5min'      : self.foreRRP_lower5min, 
+                                   'foreRRP_lowerreg'       : self.foreRRP_lowerreg,
                                    'Battery Capacity (MWhr)':self.bat_capacity
                                    })
         self.save_results()
@@ -290,9 +289,9 @@ class dispatch_optimiser:
         self.results = self.results.drop(self.results.index[0])
         # Restore stdout to the original value
         
-    
         return  self.results 
     
+
     #========================================================================================
     # ============== Calculate Dispatch =====================================================
     def calculate_dispatch(self, timestamp, forecasts, actuals, bat_deg_df):
