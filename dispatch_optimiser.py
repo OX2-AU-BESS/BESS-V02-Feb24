@@ -531,22 +531,22 @@ class dispatch_optimiser:
         #print("Writing solution to return variables.....")
         #forecast_revenue=prob.objective.value()
         #actual_revenue=0
-        solar_dispatch_vec=[]
-        battery_discharge_vec=[]
-        battery_charge_vec=[]
-        battery_dispatch_vec=[]
+        solar_dispatch_vec      =[]
+        battery_discharge_vec   =[]
+        battery_charge_vec      =[]
+        battery_dispatch_vec    =[]
         #bat_disp_spot_only=[]
-        raise6sec_disp_vec=[]
-        raise60sec_disp_vec=[]
-        raise5min_disp_vec=[]
-        raisereg_disp_vec=[]
-        lower6sec_disp_vec=[]
-        lower60sec_disp_vec=[]
-        lower5min_disp_vec=[]
-        lowerreg_disp_vec=[]
-        SOC_vec =[]
-        battery_disp=0
-        battery_total=0
+        raise6sec_disp_vec      =[]
+        raise60sec_disp_vec     =[]
+        raise5min_disp_vec      =[]
+        raisereg_disp_vec       =[]
+        lower6sec_disp_vec      =[]
+        lower60sec_disp_vec     =[]
+        lower5min_disp_vec      =[]
+        lowerreg_disp_vec       =[]
+        SOC_vec                 =[]
+        battery_disp    =0
+        battery_total   =0
         
         for i in range(0,opt_len):
             for v in prob.variables():
