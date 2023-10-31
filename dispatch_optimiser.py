@@ -552,50 +552,60 @@ class dispatch_optimiser:
             for v in prob.variables():
                 if(v.name=='B_D_'+str(i)):
                     battery_discharge_vec.append(v.varValue)
-                    battery_disp+=v.varValue
-                    battery_total+=v.varValue
+                    battery_disp    +=v.varValue
+                    battery_total   +=v.varValue
+
                 if(v.name=='B_C_'+str(i)):
                     battery_charge_vec.append(v.varValue)
-                    battery_disp+=v.varValue
-                    battery_total+=v.varValue
+                    battery_disp    +=v.varValue
+                    battery_total   +=v.varValue
+
                 if(v.name=='S_'+str(i)):
                     solar_dispatch_vec.append(v.varValue)
+
                 if(v.name=='R_6sec_'+str(i)):
                     raise6sec_disp_vec.append(v.varValue)
                     battery_total+=self.scn.FCAS_occurance*v.varValue
+
                 if(v.name=='R_60sec_'+str(i)):
                     raise60sec_disp_vec.append(v.varValue)
                     battery_total+=self.scn.FCAS_occurance*v.varValue
+
                 if(v.name=='R_5min_'+str(i)):
                     raise5min_disp_vec.append(v.varValue)
                     battery_total+=self.scn.FCAS_occurance*v.varValue
+
                 if(v.name=='R_Reg_'+str(i)):
                     raisereg_disp_vec.append(v.varValue)
                     battery_total+=self.scn.FCAS_occurance*v.varValue
+
                 if(v.name=='L_6sec_'+str(i)):
                     lower6sec_disp_vec.append(v.varValue)
                     battery_total+=self.scn.FCAS_occurance*v.varValue
+
                 if(v.name=='L_60sec_'+str(i)):
                     lower60sec_disp_vec.append(v.varValue)
                     battery_total+=self.scn.FCAS_occurance*v.varValue
+
                 if(v.name=='L_5min_'+str(i)):
                     lower5min_disp_vec.append(v.varValue)
                     battery_total+=self.scn.FCAS_occurance*v.varValue
+
                 if(v.name=='L_Reg_'+str(i)):
                     lowerreg_disp_vec.append(v.varValue)
                     battery_total+=self.scn.FCAS_occurance*v.varValue
         
         
-        battery_dispatch_vec = [a +(c + d + e + f)*self.scn.FCAS_occurance + b + (g + h + i + j)*self.scn.FCAS_occurance for a, b,c,d,e,f,g,h,i,j in zip(battery_discharge_vec,battery_charge_vec,
-                                                                                                                                                         raise6sec_disp_vec,raise60sec_disp_vec,
-                                                                                                                                                         raise5min_disp_vec,raisereg_disp_vec,
-                                                                                                                                                         lower6sec_disp_vec,lower60sec_disp_vec,
-                                                                                                                                                         lower5min_disp_vec,lowerreg_disp_vec)]
-        battery_energy = [a + b for a,b in zip(battery_discharge_vec,battery_charge_vec)]
+        battery_dispatch_vec = [a +(c + d + e + f)*self.scn.FCAS_occurance + b + (g + h + i + j)*self.scn.FCAS_occurance for a, b, c, d, e, f, g, h, i, j in zip(battery_discharge_vec  , battery_charge_vec    ,
+                                                                                                                                                                 raise6sec_disp_vec     , raise60sec_disp_vec   ,
+                                                                                                                                                                 raise5min_disp_vec     , raisereg_disp_vec     ,
+                                                                                                                                                                 lower6sec_disp_vec     , lower60sec_disp_vec   ,
+                                                                                                                                                                 lower5min_disp_vec     , lowerreg_disp_vec     )]
+        battery_energy = [a + b for a, b in zip(battery_discharge_vec, battery_charge_vec)]
         battery_SOC=self.gen.SOC
         
         for bat_out in battery_dispatch_vec:
-            if(bat_out>0):
+            if(bat_out  >0):
                 battery_SOC-=(self.optimisation_res/60*bat_out)*(1+eff)/self.gen.bat_capacity
                  #actual energy in MWh taken from battery (given dispatch is for 30-minute intervals and not 1h this creates the first factor of 0.5). The second factor of 0.5 is linked to the fact that one full charge from 0 to 100% is only half a cycle (discharge missing to make it a full cycle)
             elif(bat_out<0):
@@ -614,15 +624,15 @@ class dispatch_optimiser:
                 if f.tell() == 0:
                     self.results.to_csv(f, header=True, index=False)
                 
-                new_row = {'timestamp': forecasts.index[0], 'bess_dsp_energy': battery_energy[0], 'solar_dsp_energy':solar_dispatch_vec[0],
-                           'raise6sec':raise6sec_disp_vec[0], 'raise60sec':raise60sec_disp_vec[0], 'raise5min':raise5min_disp_vec[0],
-                           'raisereg':raisereg_disp_vec[0], 'lower6s':lower6sec_disp_vec[0], 'lower60s':lower60sec_disp_vec[0],
-                           'lower5min':lower5min_disp_vec[0], 'lowerreg':lowerreg_disp_vec[0],'bess_combined':battery_dispatch_vec[0],
-                           'SOC_profile':SOC_vec[0],'foreRRP_energy':forecast_price_profile[0],
-                           'foreRRP_raise6sec':forecast_RAISE6SEC_RRP[0], 'foreRRP_raise60sec':forecast_RAISE60SEC_RRP[0],
-                           'foreRRP_raise5min':forecast_RAISE5MIN_RRP[0], 'foreRRP_raisereg':forecast_RAISEREG_RRP[0],
-                           'foreRRP_lower6s':forecast_LOWER6SEC_RRP[0], 'foreRRP_lower60s':forecast_LOWER60SEC_RRP[0],
-                           'foreRRP_lower5min':forecast_LOWER5MIN_RRP[0], 'foreRRP_lowerreg':forecast_LOWERREG_RRP[0],"Battery Capacity (MWhr)":self.gen.bat_capacity,"Solver Status":LpStatus[prob.status]}
+                new_row = {'timestamp'          :forecasts.index        [0],    'bess_dsp_energy'    :battery_energy         [0],   'solar_dsp_energy':solar_dispatch_vec[0],
+                           'raise6sec'          :raise6sec_disp_vec     [0],    'raise60sec'         :raise60sec_disp_vec    [0],   'raise5min':raise5min_disp_vec       [0],
+                           'raisereg'           :raisereg_disp_vec      [0],    'lower6s'            :lower6sec_disp_vec     [0],   'lower60s':lower60sec_disp_vec       [0],
+                           'lower5min'          :lower5min_disp_vec     [0],    'lowerreg'           :lowerreg_disp_vec      [0],   'bess_combined':battery_dispatch_vec [0],
+                           'SOC_profile'        :SOC_vec                [0],    'foreRRP_energy'     :forecast_price_profile [0],
+                           'foreRRP_raise6sec'  :forecast_RAISE6SEC_RRP [0],    'foreRRP_raise60sec' :forecast_RAISE60SEC_RRP[0],
+                           'foreRRP_raise5min'  :forecast_RAISE5MIN_RRP [0],    'foreRRP_raisereg'   :forecast_RAISEREG_RRP  [0],
+                           'foreRRP_lower6s'    :forecast_LOWER6SEC_RRP [0],    'foreRRP_lower60s'   :forecast_LOWER60SEC_RRP[0],
+                           'foreRRP_lower5min'  :forecast_LOWER5MIN_RRP [0],     'foreRRP_lowerreg'  :forecast_LOWERREG_RRP  [0],   "Battery Capacity (MWhr)":self.gen.bat_capacity,"Solver Status":LpStatus[prob.status]}
                             # add the new row to the dataframe
                 writer = csv.DictWriter(f, fieldnames=new_row)
     
