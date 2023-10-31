@@ -27,50 +27,48 @@ class dispatch_optimiser:
         self.scn                = scn        
         self.optimisation_res   = simulation_params['optimisation_res'  ]
         self.gen.load_solar_profile(self.optimisation_res) #inflate solar generation profile to 5 minutes
-        self.forecast_res       = simulation_params['forecast_res'      ]    
+        self.forecast_res       = simulation_params['forecast_res'      ]
         self.forecast_data_path = simulation_params['forecast_data_path']
         self.actual_data_path   = simulation_params['actual_data_path'  ]
         self.revenue_method     = simulation_params['revenue_method'    ]
-        self.results            = pd.DataFrame(columns=[ 
-            'timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg',
-            'bess_combined', 'SOC_profile','foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 
-            'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
-        self.output_directory   = simulation_params['output_directory']
-        self.timestamps         = []
-        self.bess_dsp_energy    = []
-        self.solar_dsp_energy   = []
-        self.raise6s            = []
-        self.raise60s           = []
-        self.raise5min          = []
-        self.raisereg           = []
-        self.lower6s            = []
-        self.lower60s           = []
-        self.lower5min          = []
-        self.lowerreg           = []        
-        self.bess_combined_output=[]
-        self.RRP_energy         = []
-        self.RRP_raise6s        = []
-        self.RRP_raise60s       = []
-        self.RRP_raise5min      = []
-        self.RRP_raisereg       = []
-        self.RRP_lower6s        = []
-        self.RRP_lower60s       = []
-        self.RRP_lower5min      = []
-        self.RRP_lowerregr      = []
-        self.foreRRP_enegy      = []
-        self.foreRRP_raise6s    = []
-        self.foreRRP_raise60s   = []
-        self.foreRRP_raise5min  = []
-        self.foreRRP_raisereg   = []
-        self.foreRRP_lower6s    = []
-        self.foreRRP_lower60s   = []
-        self.foreRRP_lower5min  = []
-        self.foreRRP_lowerreg   = []
-        self.SOC_profile        = []
-        self.bat_capacity       = []
-        self.num_cycles         = 0
-        self.init_bat_capacity  = self.gen.bat_capacity
-        self.csv_err_count      = 0
+        self.results            = pd.DataFrame(columns=['timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg','bess_combined', 'SOC_profile',
+                                             'foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
+        self.output_directory       =simulation_params['output_directory']
+        self.timestamps             =[]
+        self.bess_dsp_energy        =[]
+        self.solar_dsp_energy       =[]
+        self.raise6s                =[]
+        self.raise60s               =[]
+        self.raise5min              =[]
+        self.raisereg               =[]
+        self.lower6s                =[]
+        self.lower60s               =[]
+        self.lower5min              =[]
+        self.lowerreg               =[]        
+        self.bess_combined_output   =[]
+        self.RRP_energy             =[]
+        self.RRP_raise6s            =[]
+        self.RRP_raise60s           =[]
+        self.RRP_raise5min          =[]
+        self.RRP_raisereg           =[]
+        self.RRP_lower6s            =[]
+        self.RRP_lower60s           =[]
+        self.RRP_lower5min          =[]
+        self.RRP_lowerreg           =[]
+        self.foreRRP_energy         =[]
+        self.foreRRP_raise6s        =[]
+        self.foreRRP_raise60s       =[]
+        self.foreRRP_raise5min      =[]
+        self.foreRRP_raisereg       =[]
+        self.foreRRP_lower6s        =[]
+        self.foreRRP_lower60s       =[]
+        self.foreRRP_lower5min      =[]
+        self.foreRRP_lowerreg       =[]
+        self.SOC_profile            =[]
+        self.bat_capacity           =[]
+        self.num_cycles             =0
+        self.init_bat_capacity      = self.gen.bat_capacity
+        self.csv_err_count          =0
 
     #========================================================================================
     # ============== Selecting solar data for the time stamp ================================        
