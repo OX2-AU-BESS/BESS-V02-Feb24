@@ -624,15 +624,15 @@ class dispatch_optimiser:
                 if f.tell() == 0:
                     self.results.to_csv(f, header=True, index=False)
                 
-                new_row = {'timestamp'          :forecasts.index        [0],    'bess_dsp_energy'    :battery_energy         [0],   'solar_dsp_energy':solar_dispatch_vec[0],
-                           'raise6sec'          :raise6sec_disp_vec     [0],    'raise60sec'         :raise60sec_disp_vec    [0],   'raise5min':raise5min_disp_vec       [0],
-                           'raisereg'           :raisereg_disp_vec      [0],    'lower6s'            :lower6sec_disp_vec     [0],   'lower60s':lower60sec_disp_vec       [0],
-                           'lower5min'          :lower5min_disp_vec     [0],    'lowerreg'           :lowerreg_disp_vec      [0],   'bess_combined':battery_dispatch_vec [0],
-                           'SOC_profile'        :SOC_vec                [0],    'foreRRP_energy'     :forecast_price_profile [0],
-                           'foreRRP_raise6sec'  :forecast_RAISE6SEC_RRP [0],    'foreRRP_raise60sec' :forecast_RAISE60SEC_RRP[0],
-                           'foreRRP_raise5min'  :forecast_RAISE5MIN_RRP [0],    'foreRRP_raisereg'   :forecast_RAISEREG_RRP  [0],
-                           'foreRRP_lower6s'    :forecast_LOWER6SEC_RRP [0],    'foreRRP_lower60s'   :forecast_LOWER60SEC_RRP[0],
-                           'foreRRP_lower5min'  :forecast_LOWER5MIN_RRP [0],     'foreRRP_lowerreg'  :forecast_LOWERREG_RRP  [0],   "Battery Capacity (MWhr)":self.gen.bat_capacity,"Solver Status":LpStatus[prob.status]}
+                new_row = {'timestamp'          :forecasts.index        [0],   'bess_dsp_energy'    :battery_energy         [0],   'solar_dsp_energy':solar_dispatch_vec[0],
+                           'raise6sec'          :raise6sec_disp_vec     [0],   'raise60sec'         :raise60sec_disp_vec    [0],   'raise5min':raise5min_disp_vec       [0],
+                           'raisereg'           :raisereg_disp_vec      [0],   'lower6s'            :lower6sec_disp_vec     [0],   'lower60s':lower60sec_disp_vec       [0],
+                           'lower5min'          :lower5min_disp_vec     [0],   'lowerreg'           :lowerreg_disp_vec      [0],   'bess_combined':battery_dispatch_vec [0],
+                           'SOC_profile'        :SOC_vec                [0],   'foreRRP_energy'     :forecast_price_profile [0],
+                           'foreRRP_raise6sec'  :forecast_RAISE6SEC_RRP [0],   'foreRRP_raise60sec' :forecast_RAISE60SEC_RRP[0],
+                           'foreRRP_raise5min'  :forecast_RAISE5MIN_RRP [0],   'foreRRP_raisereg'   :forecast_RAISEREG_RRP  [0],
+                           'foreRRP_lower6s'    :forecast_LOWER6SEC_RRP [0],   'foreRRP_lower60s'   :forecast_LOWER60SEC_RRP[0],
+                           'foreRRP_lower5min'  :forecast_LOWER5MIN_RRP [0],   'foreRRP_lowerreg'  :forecast_LOWERREG_RRP  [0],   "Battery Capacity (MWhr)":self.gen.bat_capacity,"Solver Status":LpStatus[prob.status]}
                             # add the new row to the dataframe
                 writer = csv.DictWriter(f, fieldnames=new_row)
     
