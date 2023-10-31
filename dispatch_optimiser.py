@@ -7,78 +7,80 @@ This class carries out the dispatch optimisation and the
 @author: SIMULATION
 """
 import gc
-import pandas               as pd
-import pulp                 as p
+import pandas as pd
+import pulp as p
+
+from pulp import LpStatus
+import forecast_forecast as ff
+import csv
+#carry out optimisation
+import datetime
+from datetime import datetime, timedelta
 import time
 import os
 import csv 
-import forecast_forecast    as ff
-import csv
-import datetime
 
-from pulp       import LpStatus
-from datetime   import datetime, timedelta
-#carry out optimisation
+
 
 class dispatch_optimiser:
     def __init__(self, gen, scn, simulation_params):
         
-        self.gen                = gen        
-        self.scn                = scn        
-        self.optimisation_res   = simulation_params['optimisation_res'  ]
+        self.gen=gen        
+        self.scn=scn        
+        self.optimisation_res = simulation_params['optimisation_res']
         self.gen.load_solar_profile(self.optimisation_res) #inflate solar generation profile to 5 minutes
-        self.forecast_res       = simulation_params['forecast_res'      ]    
-        self.forecast_data_path = simulation_params['forecast_data_path']
-        self.actual_data_path   = simulation_params['actual_data_path'  ]
-        self.revenue_method     = simulation_params['revenue_method'    ]
-        self.results            = pd.DataFrame(columns=[ 
-            'timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg',
-            'bess_combined', 'SOC_profile','foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 
-            'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
-        self.output_directory   = simulation_params['output_directory']
-        self.timestamps         = []
-        self.bess_dsp_energy    = []
-        self.solar_dsp_energy   = []
-        self.raise6s            = []
-        self.raise60s           = []
-        self.raise5min          = []
-        self.raisereg           = []
-        self.lower6s            = []
-        self.lower60s           = []
-        self.lower5min          = []
-        self.lowerreg           = []        
+        self.forecast_res = simulation_params['forecast_res']
+        self.forecast_data_path=simulation_params['forecast_data_path']
+        self.actual_data_path=simulation_params['actual_data_path']
+        self.revenue_method=simulation_params['revenue_method']
+        self.results = pd.DataFrame(columns=['timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg','bess_combined', 'SOC_profile',
+                                             'foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
+        self.output_directory=simulation_params['output_directory']
+        self.timestamps=[]
+        self.bess_dsp_energy=[]
+        self.solar_dsp_energy=[]
+        self.raise6s=[]
+        self.raise60s=[]
+        self.raise5min=[]
+        self.raisereg=[]
+        self.lower6s=[]
+        self.lower60s=[]
+        self.lower5min=[]
+        self.lowerreg=[]        
         self.bess_combined_output=[]
-        self.RRP_energy         = []
-        self.RRP_raise6s        = []
-        self.RRP_raise60s       = []
-        self.RRP_raise5min      = []
-        self.RRP_raisereg       = []
-        self.RRP_lower6s        = []
-        self.RRP_lower60s       = []
-        self.RRP_lower5min      = []
-        self.RRP_lowerregr      = []
-        self.foreRRP_enegy      = []
-        self.foreRRP_raise6s    = []
-        self.foreRRP_raise60s   = []
-        self.foreRRP_raise5min  = []
-        self.foreRRP_raisereg   = []
-        self.foreRRP_lower6s    = []
-        self.foreRRP_lower60s   = []
-        self.foreRRP_lower5min  = []
-        self.foreRRP_lowerreg   = []
-        self.SOC_profile        = []
-        self.bat_capacity       = []
-        self.num_cycles         = 0
-        self.init_bat_capacity  = self.gen.bat_capacity
-        self.csv_err_count      = 0
-
-    #========================================================================================
-    # ============== Selecting solar data for the time stamp ================================        
-    def solar_data_select(self, solar_gen_profile, timestamp, opt_len):        
+        self.RRP_energy=[]
+        self.RRP_raise6s=[]
+        self.RRP_raise60s=[]
+        self.RRP_raise5min=[]
+        self.RRP_raisereg=[]
+        self.RRP_lower6s=[]
+        self.RRP_lower60s=[]
+        self.RRP_lower5min=[]
+        self.RRP_lowerreg=[]
+        self.foreRRP_energy=[]
+        self.foreRRP_raise6s=[]
+        self.foreRRP_raise60s=[]
+        self.foreRRP_raise5min=[]
+        self.foreRRP_raisereg=[]
+        self.foreRRP_lower6s=[]
+        self.foreRRP_lower60s=[]
+        self.foreRRP_lower5min=[]
+        self.foreRRP_lowerreg=[]
+        self.SOC_profile=[]
+        self.bat_capacity=[]
+        self.num_cycles=0
+        self.init_bat_capacity= self.gen.bat_capacity
+        self.csv_err_count=0
+        
+    def solar_data_select(self,solar_gen_profile,timestamp, opt_len):
+        
+        
            # ---- Surrent solar profile extends out to 2055. It is a profile generated by Baringa -----------
         solar_gen_profile.index.to_pydatetime()
         matching_index = solar_gen_profile.index.get_loc(timestamp)
-        selected_rows  = solar_gen_profile.iloc [matching_index : matching_index+opt_len]
+        selected_rows = solar_gen_profile.iloc[matching_index : matching_index+opt_len]
+        
+        
         """
         if end_time_ts > solar_gen_profile.index[-1]:
             end_time=end_time.replace(year=1900)
@@ -94,10 +96,10 @@ class dispatch_optimiser:
             selected_rows = solar_gen_profile[condition]
         # select rows based on a start time and length of rows required
         """
+        
+        
         return selected_rows
     
-    #========================================================================================
-    # ==============  ================================   
     def print_params(self):
         print("Generator Parameters:")
         self.gen.print_params()
@@ -120,76 +122,76 @@ class dispatch_optimiser:
         self.results.to_csv(self.output_directory+"\\"+start_time+"dataframe_dispatch_results.csv", index=False)
         pass
         
-    #========================================================================================
-    # ============== Printing the parameters ================================================
+
     def optimise_dispatch(self):
         
         data_input="aurora"
 
-        # ------- set start and end times ----------------------------------------
-        date_format  = "%d/%m/%Y"
-        start_time   = datetime.strptime(self.scn.start_timestamp, date_format)
-        end_time     = datetime.strptime(self.scn.end_timestamp  , date_format)
+        # set start and end times
+        date_format = "%d/%m/%Y"
         
-        # ------- set time resolution to 1 hour ----------------------------------
+        
+        start_time = datetime.strptime(self.scn.start_timestamp, date_format)
+        end_time = datetime.strptime(self.scn.end_timestamp, date_format)
+        
+        # set time resolution to 1 hour
         time_resolution = timedelta(minutes=30)
-                
-        # ------- loop over time frame with set resolution  ----------------------
+        
+        # set time resolution to 1 hour
+        
+        # loop over time frame with set resolution
         current_time = start_time        
+        
         self.results_file_path = self.output_directory+"\\"+start_time.strftime("%Y-%m-%d")+"_"+"_results.csv"
         # Format current time as string in yyyymmdd - hhmm format
          
-        self.results = pd.DataFrame(columns=self.results.columns       )
-        self.results . to_csv      (self.results_file_path, index=False) 
+        self.results = pd.DataFrame(columns=self.results.columns)
+        self.results.to_csv(self.results_file_path, index=False) 
         
-        # ------- generate forecast price using forecast_forecast function !!!---- 
-        # this means that each run will have a different forecast profile. -------
-        fore_df      = pd.read_csv(self.forecast_data_path)
+        # ----- generate forecast data using forecast_forecast function !!! this means that each run will have a different forecast profile.
+        fore_df=pd.read_csv(self.forecast_data_path)
         if type(fore_df["Timestamp"][0]) == datetime:
-            # Type is `datetime`, Handle accordingly
+            # Type is `datetime`
+            # Handle accordingly
             pass
         else:
             # Type is string
             fore_df['Timestamp'] = pd.to_datetime(fore_df['Timestamp'],format="%d/%m/%Y %H:%M", dayfirst=True)
             pass
         
-        fore_df.reset_index(drop=True           , inplace=True          )
-        fore_df.set_index  (fore_df["Timestamp"], inplace=True,drop=True)
-        fore_df.drop       ('Timestamp', axis=1 , inplace=True          )
+        fore_df.reset_index(drop=True,inplace=True)
+        fore_df.set_index(fore_df["Timestamp"],inplace=True,drop=True)
+        fore_df.drop('Timestamp', axis=1, inplace=True)
         #grouped = fore_df.groupby(pd.Grouper(freq='D'))
         #group_keys = list(grouped.groups.keys())
         group_dates = fore_df.index.to_list()
-
-        # ------- Import/prepare actual price data ------------------------------- 
-        actual_df   = pd.read_csv(self.actual_data_path                         )                   
-        actual_df   . drop       (index=actual_df.index[0], axis=0, inplace=True)
-        actual_df   . reset_index(drop=True,inplace=True                        )
+        actual_df=pd.read_csv(self.actual_data_path)
+        actual_df.drop(index=actual_df.index[0], axis=0, inplace=True)
+        actual_df.reset_index(drop=True,inplace=True)
         if data_input == "aurora":
-            actual_df.drop       (actual_df.index[0], inplace=True)
-            actual_df.reset_index(drop=True,inplace=True          )
-            actual_df.rename     (inplace=True,columns={
-                                 'Time (UTC)'                     :"Timestamp"      ,
-                                 'Wholesale market price'         :'RRP'            ,
-                                 'Contingency raise - 6 seconds'  :'RAISE6SECRRP'   ,
-                                 'Contingency raise - 60 seconds' :'RAISE60SECRRP'  ,
-                                 'Contingency raise - 5 minutes'  :'RAISE5MINRRP'   ,
-                                 'Raise regulation'               :'RAISEREGRRP'    ,
-                                 'Contingency lower - 6 seconds'  :'LOWER6SECRRP'   ,
-                                 'Contingency lower - 60 seconds' :'LOWER60SECRRP'  ,
-                                 'Contingency lower - 5 minutes'  :'LOWER5MINRRP'   ,
-                                 'Lower regulation'               :'LOWERREGRRP'    })
+            actual_df.drop(actual_df.index[0], inplace=True)
+            actual_df.reset_index(drop=True,inplace=True)
+            actual_df.rename(inplace=True,columns={'Time (UTC)':"Timestamp",
+                                    "Wholesale market price":'RRP',
+                                 'Contingency raise - 6 seconds':'RAISE6SECRRP',
+                                 'Contingency raise - 60 seconds':'RAISE60SECRRP',
+                                 'Contingency raise - 5 minutes':'RAISE5MINRRP',
+                                 'Raise regulation':'RAISEREGRRP',
+                                 'Contingency lower - 6 seconds':'LOWER6SECRRP',
+                                 'Contingency lower - 60 seconds':'LOWER60SECRRP',
+                                 'Contingency lower - 5 minutes':'LOWER5MINRRP',
+                                 'Lower regulation':'LOWERREGRRP'})
         elif data_input == "baringa":
-            actual_df.rename(inplace=True,columns={
-                                 'Period'                         :"Timestamp"      ,
-                                 'Wholesale (RRN)'                :'RRP'            ,
-                                 'RAISE6SEC'                      :'RAISE6SECRRP'   ,
-                                 'RAISE60SEC'                     :'RAISE60SECRRP'  ,
-                                 'RAISE5MIN'                      :'RAISE5MINRRP'   ,
-                                 'RAISEREG'                       :'RAISEREGRRP'    ,
-                                 'LOWER6SEC'                      :'LOWER6SECRRP'   ,
-                                 'LOWER60SEC'                     :'LOWER60SECRRP'  ,
-                                 'LOWER5MIN'                      :'LOWER5MINRRP'   ,
-                                 'LOWERREG'                       :'LOWERREGRRP'    })
+            actual_df.rename(inplace=True,columns={'Period':"Timestamp",
+                                    "Wholesale (RRN)":'RRP',
+                                 'RAISE6SEC':'RAISE6SECRRP',
+                                 'RAISE60SEC':'RAISE60SECRRP',
+                                 'RAISE5MIN':'RAISE5MINRRP',
+                                 'RAISEREG':'RAISEREGRRP',
+                                 'LOWER6SEC':'LOWER6SECRRP',
+                                 'LOWER60SEC':'LOWER60SECRRP',
+                                 'LOWER5MIN':'LOWER5MINRRP',
+                                 'LOWERREG':'LOWERREGRRP'})
        # extract the hour and minute from the timestamp and create a new column with the format 'HH:MM'
        
         lst_cols=['RRP','RAISE6SECRRP','RAISE60SECRRP','RAISE5MINRRP','RAISEREGRRP','LOWER6SECRRP','LOWER60SECRRP','LOWER5MINRRP','LOWERREGRRP']
@@ -206,9 +208,10 @@ class dispatch_optimiser:
         #actual_df.drop('Timestamp', axis=1, inplace=True)
         #grouped_act = actual_df.groupby(pd.Grouper(freq='D'))
         
-        # ------- Import battery degradation -------------------------------------
+        # Used to apply battery degradation
         self.scn.start_timestamp= datetime.strptime(self.scn.start_timestamp, '%d/%m/%Y')
         bat_deg_df= pd.read_csv(self.gen.bat_deg_profile)
+        # loop used to apply optimiser as each time timestamp is applied
 
         # ------- loop used to apply optimiser as each time timestamp is applied--
         while current_time <= end_time: 
