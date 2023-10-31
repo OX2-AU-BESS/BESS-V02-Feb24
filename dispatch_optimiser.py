@@ -8,69 +8,69 @@ This class carries out the dispatch optimisation and the
 """
 import gc
 import pandas as pd
-import pulp as p
-
-from pulp import LpStatus
+import pulp   as p
 import forecast_forecast as ff
 import csv
-#carry out optimisation
 import datetime
-from datetime import datetime, timedelta
-import time
 import os
 import csv 
+
+from   pulp import LpStatus
+#carry out optimisation
+from   datetime import datetime, timedelta
+import time
 
 
 
 class dispatch_optimiser:
     def __init__(self, gen, scn, simulation_params):
         
-        self.gen=gen        
-        self.scn=scn        
-        self.optimisation_res = simulation_params['optimisation_res']
+        self.gen                = gen        
+        self.scn                = scn        
+        self.optimisation_res   = simulation_params['optimisation_res'  ]
         self.gen.load_solar_profile(self.optimisation_res) #inflate solar generation profile to 5 minutes
-        self.forecast_res = simulation_params['forecast_res']
-        self.forecast_data_path=simulation_params['forecast_data_path']
-        self.actual_data_path=simulation_params['actual_data_path']
-        self.revenue_method=simulation_params['revenue_method']
-        self.results = pd.DataFrame(columns=['timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg','bess_combined', 'SOC_profile',
+        self.forecast_res       = simulation_params['forecast_res'      ]
+        self.forecast_data_path = simulation_params['forecast_data_path']
+        self.actual_data_path   = simulation_params['actual_data_path'  ]
+        self.revenue_method     = simulation_params['revenue_method'    ]
+        self.results            = pd.DataFrame(columns=['timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg','bess_combined', 'SOC_profile',
                                              'foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
-        self.output_directory=simulation_params['output_directory']
-        self.timestamps=[]
-        self.bess_dsp_energy=[]
-        self.solar_dsp_energy=[]
-        self.raise6s=[]
-        self.raise60s=[]
-        self.raise5min=[]
-        self.raisereg=[]
-        self.lower6s=[]
-        self.lower60s=[]
-        self.lower5min=[]
-        self.lowerreg=[]        
-        self.bess_combined_output=[]
-        self.RRP_energy=[]
-        self.RRP_raise6s=[]
-        self.RRP_raise60s=[]
-        self.RRP_raise5min=[]
-        self.RRP_raisereg=[]
-        self.RRP_lower6s=[]
-        self.RRP_lower60s=[]
-        self.RRP_lower5min=[]
-        self.RRP_lowerreg=[]
-        self.foreRRP_energy=[]
-        self.foreRRP_raise6s=[]
-        self.foreRRP_raise60s=[]
-        self.foreRRP_raise5min=[]
-        self.foreRRP_raisereg=[]
-        self.foreRRP_lower6s=[]
-        self.foreRRP_lower60s=[]
-        self.foreRRP_lower5min=[]
-        self.foreRRP_lowerreg=[]
-        self.SOC_profile=[]
-        self.bat_capacity=[]
-        self.num_cycles=0
-        self.init_bat_capacity= self.gen.bat_capacity
-        self.csv_err_count=0
+        self.output_directory       =simulation_params['output_directory']
+        self.timestamps             =[]
+        self.bess_dsp_energy        =[]
+        self.solar_dsp_energy       =[]
+        self.raise6s                =[]
+        self.raise60s               =[]
+        self.raise5min              =[]
+        self.raisereg               =[]
+        self.lower6s                =[]
+        self.lower60s               =[]
+        self.lower5min              =[]
+        self.lowerreg               =[]        
+        self.bess_combined_output   =[]
+        self.RRP_energy             =[]
+        self.RRP_raise6s            =[]
+        self.RRP_raise60s           =[]
+        self.RRP_raise5min          =[]
+        self.RRP_raisereg           =[]
+        self.RRP_lower6s            =[]
+        self.RRP_lower60s           =[]
+        self.RRP_lower5min          =[]
+        self.RRP_lowerreg           =[]
+        self.foreRRP_energy         =[]
+        self.foreRRP_raise6s        =[]
+        self.foreRRP_raise60s       =[]
+        self.foreRRP_raise5min      =[]
+        self.foreRRP_raisereg       =[]
+        self.foreRRP_lower6s        =[]
+        self.foreRRP_lower60s       =[]
+        self.foreRRP_lower5min      =[]
+        self.foreRRP_lowerreg       =[]
+        self.SOC_profile            =[]
+        self.bat_capacity           =[]
+        self.num_cycles             =0
+        self.init_bat_capacity      = self.gen.bat_capacity
+        self.csv_err_count          =0
         
     def solar_data_select(self,solar_gen_profile,timestamp, opt_len):
         
@@ -78,7 +78,7 @@ class dispatch_optimiser:
            # ---- Surrent solar profile extends out to 2055. It is a profile generated by Baringa -----------
         solar_gen_profile.index.to_pydatetime()
         matching_index = solar_gen_profile.index.get_loc(timestamp)
-        selected_rows = solar_gen_profile.iloc[matching_index : matching_index+opt_len]
+        selected_rows  = solar_gen_profile.iloc[matching_index : matching_index+opt_len]
         
         
         """
