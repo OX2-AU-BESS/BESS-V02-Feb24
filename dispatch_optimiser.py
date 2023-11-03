@@ -630,7 +630,7 @@ class dispatch_optimiser:
                            'foreRRP_raise6sec'  :forecast_RAISE6SEC_RRP [0],   'foreRRP_raise60sec' :forecast_RAISE60SEC_RRP[0],
                            'foreRRP_raise5min'  :forecast_RAISE5MIN_RRP [0],   'foreRRP_raisereg'   :forecast_RAISEREG_RRP  [0],
                            'foreRRP_lower6s'    :forecast_LOWER6SEC_RRP [0],   'foreRRP_lower60s'   :forecast_LOWER60SEC_RRP[0],
-                           'foreRRP_lower5min'  :forecast_LOWER5MIN_RRP [0],   'foreRRP_lowerreg'  :forecast_LOWERREG_RRP  [0],   "Battery Capacity (MWhr)":self.gen.bat_capacity,"Solver Status":LpStatus[prob.status]}
+                           'foreRRP_lower5min'  :forecast_LOWER5MIN_RRP [0],   'foreRRP_lowerreg'   :forecast_LOWERREG_RRP  [0],   "Battery Capacity (MWhr)":self.gen.bat_capacity,"Solver Status":LpStatus[prob.status]}
                             # add the new row to the dataframe
                 writer = csv.DictWriter(f, fieldnames=new_row)
     
