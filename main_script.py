@@ -42,7 +42,8 @@ def create_folder(directory):
 
 def run_script_multiprocessing(months, years,folder_path):
     # Get number of cores available: 
-    num_cores = multiprocessing.cpu_count()
+    # num_cores = multiprocessing.cpu_count()
+    num_cores = 16
     print(f"Number of CPU cores: {num_cores}")
     pool = multiprocessing.Pool(processes=num_cores)
     
