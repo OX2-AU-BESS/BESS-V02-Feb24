@@ -54,8 +54,8 @@ def create_folder(directory):
 # ============== Parallel computation: Distributing computations on several cores ======= 
 def run_script_multiprocessing(months, years, folder_path):
     # Get number of cores available: 
-    num_cores = multiprocessing.cpu_count()
-    # num_cores = 1
+    # num_cores = multiprocessing.cpu_count()
+    num_cores = 16
     print(f"Number of CPU cores: {num_cores}")
     pool      = multiprocessing.Pool(processes=num_cores)
                 
@@ -177,7 +177,7 @@ main_solve(4, 2025,folder_path)
 if __name__ == "__main__":
     months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     # duration of opt in years
-    dur   = 4
+    dur   = 3
     years = [] 
     # Add the desired range of years
     for i in range(0,dur):
