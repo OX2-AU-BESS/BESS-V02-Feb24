@@ -477,7 +477,11 @@ class dispatch_optimiser:
                             +self.scn.FCAS_occurance*(lower6sec[i] + lower60sec[i] + lower5min[i] + lowerreg[i])
                                                                                                                ) <= self.gen.plant_max_MW
               
-            prob += p.lpSum(solar_dispatch[i]+battery_discharge[i]+battery_charge[i]+self.scn.FCAS_occurance*(raise6sec[i] + raise60sec[i] + raise5min[i] + raisereg[i])
+            prob += p.lpSum(
+                            solar_dispatch    [i]
+                            +battery_discharge[i]
+                            +battery_charge   [i]
+                            +self.scn.FCAS_occurance*(raise6sec[i] + raise60sec[i] + raise5min[i] + raisereg[i])
                             +self.scn.FCAS_occurance*(lower6sec[i] + lower60sec[i] + lower5min[i] + lowerreg[i])) >= self.gen.plant_min_MW
             
             prob += p.lpSum(solar_dispatch [i]+ battery_discharge[i]+ battery_charge[i]) <= self.gen.plant_max_MW
