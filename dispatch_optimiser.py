@@ -478,7 +478,7 @@ class dispatch_optimiser:
                                                                                                                ) <= self.gen.plant_max_MW
               
             prob += p.lpSum(
-                            solar_dispatch    [i]
+                             solar_dispatch   [i]
                             +battery_discharge[i]
                             +battery_charge   [i]
                             +self.scn.FCAS_occurance*(raise6sec[i] + raise60sec[i] + raise5min[i] + raisereg[i])
