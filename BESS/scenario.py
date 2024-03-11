@@ -2,7 +2,9 @@
 """
 Created on Mon Feb 27 17:36:08 2023
 
-@author: SIMULATION
+@ Author: SIMULATION
+@ Revised/restructured: Mojtaba Jabbari Ghadi
+
 """
 class Scenario:
     def __init__(self, scenario_params):

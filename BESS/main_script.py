@@ -4,7 +4,8 @@ Created on Mon Feb 27 17:03:55 2023
 
 Main script in which we define the generator and scenario for which we woudl like to estimate the revenue.
 
-@author: Mervin
+@ Author: Mervin
+@ Revised/restructured: Mojtaba Jabbari Ghadi
 """
 import datetime                            as dt
 import multiprocessing

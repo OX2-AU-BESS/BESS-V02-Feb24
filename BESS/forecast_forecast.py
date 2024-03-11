@@ -2,7 +2,9 @@
 """
 Created on Wed Mar 29 14:22:59 2023
 
-@author: Angus Lamin
+@ Author: Angus Lamin
+@ Revised/restructured: Mojtaba Jabbari Ghadi
+
 """
 
 import numpy as np

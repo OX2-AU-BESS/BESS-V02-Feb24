@@ -2,7 +2,9 @@
 """
 Created on Mon Feb 27 16:55:11 2023
 Class containing information about the generator to be used in the optimisation
-@author: Mervin
+@ Author: Mervin
+@ Revised/restructured: Mojtaba Jabbari Ghadi
+
 """
 import os
 import pandas as pd

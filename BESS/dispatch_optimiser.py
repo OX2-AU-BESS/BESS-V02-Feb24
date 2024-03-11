@@ -4,7 +4,9 @@ Created on Tue Feb 28 11:35:29 2023
 
 This class carries out the dispatch optimisation and the 
 
-@author: SIMULATION
+@ Author: SIMULATION
+@ Revised/restructured: Mojtaba Jabbari Ghadi
+
 """
 import gc
 import pandas               as pd
