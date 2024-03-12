@@ -53,33 +53,34 @@ def create_folder(directory):
 
 #========================================================================================
 # ============== Parallel computation: Distributing computations on several cores ======= 
-def run_script_multiprocessing(months, years, folder_path):
+def run_script_multiprocessing(months, years, Inputs):
     # Get number of cores available: 
     # num_cores = multiprocessing.cpu_count()
 
-    Multi_Processing= False
+    Multi_Processing= Inputs['Multi-Processing']
     month_year_combinations = [(month, year) for year in years   for month in months]
 
     if Multi_Processing:
         #  Multiprocessing
-        num_cores = 1
+        num_cores = multiprocessing.cpu_count()
+        # num_cores = 1
         print(f"Number of CPU cores: {num_cores}")
         pool      = multiprocessing.Pool(processes=num_cores)
                     
         # Generate all possible combinations of months and years
-        pool. starmap(main_solve, [(month, year, folder_path) for month, year in month_year_combinations                    ])
+        pool. starmap(main_solve, [(month, year, Inputs) for month, year in month_year_combinations                    ])
         pool.close()
         pool.join()
     else:
         for month, year in month_year_combinations:
-            main_solve(month, year, folder_path)
+            main_solve(month, year, Inputs)
             z=0  
 
     
 
 #========================================================================================
 # ============== Main solver of the algorithm =========================================== 
-def main_solve(month, year, folder_path):   
+def main_solve(month, year, Inputs):   
     start_date = format_date            (month, year) 
     end_date   = first_day_of_next_month(start_date )
     
@@ -88,8 +89,10 @@ def main_solve(month, year, folder_path):
     # path=r"C:\Users\{}\OneDrive - OX2\Data\18. Grid\BESS Model Remote\Basic BESS Inputs".format(username)+r"\\"
     # project_information = path + "Project information_template.xlsx"
 
-    Inputs = Import_Inputs. Import_Data(folder_path)
+    #  ------ Get input parameters from Project information.xlsx -------------------   
+    # Inputs = Import_Inputs. Import_Data(folder_path)
 
+    #  ------ Get input plant/scenario/solver parameters ---------------------------   
     plant_parameters={
                     'plant_max_MW'              :Inputs['plant_max_MW'              ],
                     'plant_min_MW'              :Inputs['plant_min_MW'              ],
@@ -165,17 +168,20 @@ if __name__ == "__main__":
     # Add the desired range of years
     for i in range(0,dur):
         years.append(2025+i)
+        
+    Inputs = Import_Inputs. Import_Data()
     
     start_time        = time . time  ()
     current_directory = os   . getcwd()
     parent_directory  = os   . path. dirname(current_directory)
     OutPut_directory  = "Output"
-    File_Path         = time . strftime("%B-%d %H_%M", time. localtime(start_time)) +" "+"SUNSSF_40MW_4hr_results"
-    folder_path       = os   . path. join (parent_directory, OutPut_directory, File_Path)
+    Output_SubFolder  = time . strftime("%B-%d %H_%M", time. localtime(start_time)) +" "+Inputs['Scenario Name']
+    OutputFolder_path = os   . path. join (parent_directory, OutPut_directory, Output_SubFolder)
+    Inputs['output_directory'] = OutputFolder_path
 
-    create_folder(folder_path)
-    
-    df = run_script_multiprocessing(months, years,folder_path)
+    create_folder(OutputFolder_path)
+   
+    df = run_script_multiprocessing(months, years, Inputs)
     #df.to_csv(folder_path+r"\\concatenated_results.csv",index=False)
     end_time = time.time()
     execution_time = end_time - start_time
