@@ -13,6 +13,7 @@ import os
 import time
 import pandas                              as pd
 import dispatch_optimiser
+import Import_Inputs
 from   dispatch_optimiser import dispatch_optimiser
 from   generator          import Generator as gen
 from   scenario           import Scenario  as scn  
@@ -54,22 +55,31 @@ def create_folder(directory):
 # ============== Parallel computation: Distributing computations on several cores ======= 
 def run_script_multiprocessing(months, years, folder_path):
     # Get number of cores available: 
-    num_cores = multiprocessing.cpu_count()
-    # num_cores = 16
-    print(f"Number of CPU cores: {num_cores}")
-    pool      = multiprocessing.Pool(processes=num_cores)
-                
-    # Generate all possible combinations of months and years
-    month_year_combinations = [(month, year             ) for year        in years                   for month in months]
-    pool. starmap(main_solve, [(month, year, folder_path) for month, year in month_year_combinations                    ])
-        
-    pool.close()
-    pool.join()
+    # num_cores = multiprocessing.cpu_count()
+
+    Multi_Processing= False
+    month_year_combinations = [(month, year) for year in years   for month in months]
+
+    if Multi_Processing:
+        #  Multiprocessing
+        num_cores = 1
+        print(f"Number of CPU cores: {num_cores}")
+        pool      = multiprocessing.Pool(processes=num_cores)
+                    
+        # Generate all possible combinations of months and years
+        pool. starmap(main_solve, [(month, year, folder_path) for month, year in month_year_combinations                    ])
+        pool.close()
+        pool.join()
+    else:
+        for month, year in month_year_combinations:
+            main_solve(month, year, folder_path)
+            z=0  
+
     
 
 #========================================================================================
 # ============== Main solver of the algorithm =========================================== 
-def main_solve(month, year,folder_path):   
+def main_solve(month, year, folder_path):   
     start_date = format_date            (month, year) 
     end_date   = first_day_of_next_month(start_date )
     
@@ -78,76 +88,78 @@ def main_solve(month, year,folder_path):
     # path=r"C:\Users\{}\OneDrive - OX2\Data\18. Grid\BESS Model Remote\Basic BESS Inputs".format(username)+r"\\"
     # project_information = path + "Project information_template.xlsx"
 
-    #  ------ Get directory for 'Project Information' file ------------------------
-    Current_directory   = os.getcwd()
-    Parent_directory    = os.path.dirname(Current_directory)
-    Input_folder        = "Input"
-    Input_templateXlsx  = r"Project information_template.xlsx"
-    project_information = os.path.join(Parent_directory, Input_folder, Input_templateXlsx)
+    Inputs = Import_Inputs. Import_Data(folder_path)
 
-    #  ------ Get directory for 'Forecasted Price' file ---------------------------
-    output_directory    = folder_path
-    Dispatch_results    = r"NSW1_dispatch_results.csv"
-    forecast_path       = os.path.join(Parent_directory, Input_folder, Dispatch_results)
+    # #  ------ Get directory for 'Project Information' file ------------------------
+    # Current_directory   = os.getcwd()
+    # Parent_directory    = os.path.dirname(Current_directory)
+    # Input_folder        = "Input"
+    # Input_templateXlsx  = r"Project information_template.xlsx"
+    # project_information = os.path.join(Parent_directory, Input_folder, Input_templateXlsx)
 
-    #  ------ Get directory for 'Actual Price' file --------------------------------
-    Price_FolderFile    = r"Aurora\Australia 2022 Q3 (Low)_nsw"
-    actual_path         = os.path.join(Parent_directory, Input_folder)
+    # #  ------ Get directory for 'Forecasted Price' file ---------------------------
+    # output_directory    = folder_path
+    # Dispatch_results    = r"NSW1_dispatch_results.csv"
+    # forecast_path       = os.path.join(Parent_directory, Input_folder, Dispatch_results)
 
-    #  ------ Get directory for 'Input' folder -------------------------------------
-    InputFolderPath     = os.path.join(Parent_directory, Input_folder)
+    # #  ------ Get directory for 'Actual Price' file --------------------------------
+    # Price_FolderFile    = r"Aurora\Australia 2022 Q3 (Low)_nsw"
+    # actual_path         = os.path.join(Parent_directory, Input_folder)
+
+    # #  ------ Get directory for 'Input' folder -------------------------------------
+    # InputFolderPath     = os.path.join(Parent_directory, Input_folder)
                     
-    #  ------ Importing data from different tabs of 'Project Information' file -----                
-    plant_info  = pd.read_excel(project_information, sheet_name='generator'      )
-    scn_info    = pd.read_excel(project_information, sheet_name='scenario'       )
-    solver_info = pd.read_excel(project_information, sheet_name='solver_settings')
+    # #  ------ Importing data from different tabs of 'Project Information' file -----                
+    # plant_info  = pd.read_excel(project_information, sheet_name='generator'      )
+    # scn_info    = pd.read_excel(project_information, sheet_name='scenario'       )
+    # solver_info = pd.read_excel(project_information, sheet_name='solver_settings')
 
-    plant_info  = dict(zip(plant_info ['identifier'], plant_info ['value']))
-    scn_info    = dict(zip(scn_info   ['identifier'], scn_info   ['value']))
-    solver_info = dict(zip(solver_info['identifier'], solver_info['value']))    
+    # plant_info  = dict(zip(plant_info ['identifier'], plant_info ['value']))
+    # scn_info    = dict(zip(scn_info   ['identifier'], scn_info   ['value']))
+    # solver_info = dict(zip(solver_info['identifier'], solver_info['value']))    
 
 
     plant_parameters={
-                    'plant_max_MW'              :plant_info['plant_max_MW'              ],
-                    'plant_min_MW'              :plant_info['plant_min_MW'              ],
-                    'solar_MW_rating'           :plant_info['solar_MW_rating'           ],
-                    'bat_max_MW'                :plant_info['bat_max_MW'                ],
-                    'bat_min_MW'                :plant_info['bat_min_MW'                ],
-                    'bat_capacity'              :plant_info['bat_capacity'              ],
-                    'min_SOC'                   :plant_info['min_SOC'                   ],
-                    'max_SOC'                   :plant_info['max_SOC'                   ],  
-                    'marginal_loss_factor_gen'  :plant_info['marginal_loss_factor_gen'  ],
-                    'marginal_loss_factor_load' :plant_info['marginal_loss_factor_load' ],
-                    'round_trip_efficiency'     :plant_info['round_trip_efficiency'     ],
-                    'location'                  :plant_info['location'                  ]+'1',
-                    'bat_deg_profile'           :InputFolderPath + "\\" + plant_info['bat_deg_profile'  ],
-                    'solar_gen_profile'         :InputFolderPath + "\\" + plant_info['solar_gen_profile'],
+                    'plant_max_MW'              :Inputs['plant_max_MW'              ],
+                    'plant_min_MW'              :Inputs['plant_min_MW'              ],
+                    'solar_MW_rating'           :Inputs['solar_MW_rating'           ],
+                    'bat_max_MW'                :Inputs['bat_max_MW'                ],
+                    'bat_min_MW'                :Inputs['bat_min_MW'                ],
+                    'bat_capacity'              :Inputs['bat_capacity'              ],
+                    'min_SOC'                   :Inputs['min_SOC'                   ],
+                    'max_SOC'                   :Inputs['max_SOC'                   ],  
+                    'marginal_loss_factor_gen'  :Inputs['marginal_loss_factor_gen'  ],
+                    'marginal_loss_factor_load' :Inputs['marginal_loss_factor_load' ],
+                    'round_trip_efficiency'     :Inputs['round_trip_efficiency'     ],
+                    'location'                  :Inputs['location'                  ]+'1',
+                    'bat_deg_profile'           :Inputs['InputFolderPath'] + "\\" + Inputs['bat_deg_profile'  ],
+                    'solar_gen_profile'         :Inputs['InputFolderPath'] + "\\" + Inputs['solar_gen_profile'],
                     }
     
     scenario_parameters={
                     'start_timestamp'           :start_date                          , #scn_info['start_timestamp'], 1/10/2022
                     'end_timestamp'             :end_date                            , #scn_info['end_timestamp'], 30/06/2060 13:30
-                    'overall_start_time'        :scn_info['overall_start_time'      ],
-                    'battery_SOC'               :scn_info['battery_SOC'             ],
-                    'target_SOC'                :scn_info['target_SOC'              ],
-                    'SoC_tolerance'             :scn_info['SoC_tolerance'           ],
-                    'max_cycles'                :scn_info['max_cycles'              ],            
-                    'FCAS_occurance'            :scn_info['FCAS_occurrence'         ], #chance of an FCAS contingency event during any 30min time period, 0 < x <= 1.0
-                    'FCAS_MW_Participation_Reg' :scn_info['FCAS_Participation_Reg'  ],
-                    'FCAS_MW_Participation_Cont':scn_info['FCAS_Participation_Cont' ], #% of battery SoC  
-                    'LGC_price'                 :scn_info['LGC_price'               ],
-                    'max_FCAS_percent'          :scn_info['max_FCAS_percent'        ], #percentage limit defining what part of the battery can be used for FCAS
-                    'data_source'               :'auto'                              , #automatically selects data based on time frame specified and data available
+                    'overall_start_time'        :Inputs['overall_start_time'      ],
+                    'battery_SOC'               :Inputs['battery_SOC'             ],
+                    'target_SOC'                :Inputs['target_SOC'              ],
+                    'SoC_tolerance'             :Inputs['SoC_tolerance'           ],
+                    'max_cycles'                :Inputs['max_cycles'              ],            
+                    'FCAS_occurance'            :Inputs['FCAS_occurrence'         ], #chance of an FCAS contingency event during any 30min time period, 0 < x <= 1.0
+                    'FCAS_MW_Participation_Reg' :Inputs['FCAS_Participation_Reg'  ],
+                    'FCAS_MW_Participation_Cont':Inputs['FCAS_Participation_Cont' ], #% of battery SoC  
+                    'LGC_price'                 :Inputs['LGC_price'               ],
+                    'max_FCAS_percent'          :Inputs['max_FCAS_percent'        ], #percentage limit defining what part of the battery can be used for FCAS
+                    'data_source'               :'auto'                            , #automatically selects data based on time frame specified and data available
                     'export_limits'             :[]
                     }
     
     solver_parameters={
-                    'optimisation_res'          :solver_info['optimisation_res'], #time interval lengt in minutes after which the dispatch otimisation to the end of intraday forecast period is carried out
-                    'forecast_res'              :solver_info['forecast_res'    ], #time resolution of the forecast data to be used.
-                    'forecast_data_path'        :forecast_path,
-                    'revenue_method'            :solver_info['revenue_method'  ],
-                    'actual_data_path'          :os.path.join(actual_path, solver_info['actual_data_path']),
-                    'output_directory'          :output_directory
+                    'optimisation_res'          :Inputs['optimisation_res'], #time interval lengt in minutes after which the dispatch otimisation to the end of intraday forecast period is carried out
+                    'forecast_res'              :Inputs['forecast_res'    ], #time resolution of the forecast data to be used.
+                    'forecast_data_path'        :Inputs['forecast_path'   ],
+                    'revenue_method'            :Inputs['revenue_method'  ],
+                    'actual_data_path'          :os.path.join(Inputs['InputFolderPath'], Inputs['actual_data_path']),
+                    'output_directory'          :Inputs['output_directory']
                       }
     
     #  ------ Get information of generator -----------------------------------------   
