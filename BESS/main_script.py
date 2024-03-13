@@ -171,6 +171,7 @@ def main_solve(start_date, end_date, Inputs):
                     'revenue_method'            :Inputs['revenue_method'            ],
                     'actual_data_path'          :os.path.join(Inputs['InputFolderPath'], Inputs['actual_data_path']),
                     'output_directory'          :Inputs['output_directory'          ],
+                    'forecast_Company'          :Inputs['forecast_Company'          ],
                       }
     
     #  ------ Get information of generator -----------------------------------------   

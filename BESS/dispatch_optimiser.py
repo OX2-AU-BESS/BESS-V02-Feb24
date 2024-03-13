@@ -36,6 +36,7 @@ class dispatch_optimiser:
         self.results                = pd.DataFrame(columns=['timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg','bess_combined', 'SOC_profile',
                                              'foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
         self.output_directory       = simulation_params['output_directory']
+        self.forecast_Company       = simulation_params['forecast_Company']
         self.timestamps             =[]
         self.bess_dsp_energy        =[]
         self.solar_dsp_energy       =[]
@@ -123,7 +124,7 @@ class dispatch_optimiser:
     #========================================================================================
     # ============== Printing the parameters ================================================
     def optimise_dispatch(self):
-        data_input="aurora"
+        data_input=self.forecast_Company
 
         # ------- set start and end times ----------------------------------------
         date_format  = "%d/%m/%Y"
@@ -163,7 +164,7 @@ class dispatch_optimiser:
         actual_df   = pd.read_csv(self.actual_data_path                         )                   
         actual_df   . drop       (index=actual_df.index[0], axis=0, inplace=True)
         actual_df   . reset_index(drop=True,inplace=True                        )
-        if data_input == "aurora":
+        if data_input == "Aurora":
             actual_df.drop       (actual_df.index[0], inplace=True)
             actual_df.reset_index(drop=True,inplace=True          )
             actual_df.rename     (inplace=True,columns={
@@ -177,7 +178,7 @@ class dispatch_optimiser:
                                  'Contingency lower - 60 seconds' :'LOWER60SECRRP'  ,
                                  'Contingency lower - 5 minutes'  :'LOWER5MINRRP'   ,
                                  'Lower regulation'               :'LOWERREGRRP'    })
-        elif data_input == "baringa":
+        elif data_input == "Baringa":
             actual_df.rename(inplace=True,columns={
                                  'Period'                         :"Timestamp"      ,
                                  'Wholesale (RRN)'                :'RRP'            ,
@@ -215,7 +216,7 @@ class dispatch_optimiser:
                 current_time += time_resolution
                 pass
             elif current_time in group_dates:
-                matching_index = fore_df.index.get_loc(current_time)
+                matching_index = fore_df  .index.get_loc(current_time)
                 fore_df_cur    = fore_df  .iloc[matching_index : matching_index+48]
                 act_df_cur     = actual_df.iloc[matching_index : matching_index+48]
                 start_time_act = time.time()                  

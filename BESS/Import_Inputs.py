@@ -9,11 +9,6 @@ def Import_Data():
     Input_templateXlsx  = r"Project information.xlsx"
     project_information = os.path.join(Parent_directory, Input_folder, Input_templateXlsx)
 
-    #  ------ Get directory for 'Forecasted Price' file ---------------------------
-    # output_directory    = folder_path
-    Dispatch_results    = r"NSW1_dispatch_results.csv"
-    forecast_path       = os.path.join(Parent_directory, Input_folder, Dispatch_results)
-
     #  ------ Get directory for 'Actual Price' file --------------------------------
     # Price_FolderFile    = r"Aurora\Australia 2022 Q3 (Low)_nsw"
     # actual_path         = os.path.join(Parent_directory, Input_folder)
@@ -26,7 +21,7 @@ def Import_Data():
     Inputs  = dict(zip(Inputs ['identifier'], Inputs ['value']))
 
     Inputs['InputFolderPath' ] = InputFolderPath
-    Inputs['forecast_path'   ] = forecast_path
+    Inputs['forecast_path'   ] = os.path.join(Parent_directory, Input_folder, Inputs['forecast_data_path'])
     
     # Inputs['output_directory'] = output_directory
 
