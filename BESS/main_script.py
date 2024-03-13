@@ -30,6 +30,35 @@ def first_day_of_next_month(date_str):
         month = 1
         year += 1
     return dt.datetime(year, month, day).strftime("%d/%m/%Y")
+# ========================================================================================
+from datetime import datetime, timedelta
+
+def divide_period(start_date, end_date):
+    # Parse start_date and end_date strings to datetime objects
+    start_date = datetime.strptime(start_date, "%d/%m/%Y")
+    end_date = datetime.strptime(end_date, "%d/%m/%Y")
+    
+    # Initialize a list to store timestamps
+    timestamps = []
+
+    # Start iterating from start_date until end_date
+    current_date = start_date
+    while current_date <= end_date:
+        # Determine the end of the current month
+        end_of_month = current_date.replace(day=1) + timedelta(days=32)
+        end_of_month = end_of_month.replace(day=1) - timedelta(days=1)
+        
+        # Adjust the end_of_month if it goes beyond the end_date
+        if end_of_month > end_date:
+            end_of_month = end_date
+        
+        # Add timestamp for the current month
+        timestamps.append((current_date, end_of_month))
+        
+        # Move to the next month
+        current_date = end_of_month + timedelta(days=1)
+    
+    return timestamps
 
 
 #========================================================================================
@@ -58,6 +87,13 @@ def run_script_multiprocessing(months, years, Inputs):
     # num_cores = multiprocessing.cpu_count()
 
     Multi_Processing= Inputs['Multi-Processing']
+
+    # Example usage
+    start_date = Inputs['start_timestamp'] # "2023-01-5"
+    end_date  = Inputs['end_timestamp'] #  "2023-05-7"
+    result = divide_period(start_date, end_date)
+
+
     month_year_combinations = [(month, year) for year in years   for month in months]
 
     if Multi_Processing:
@@ -68,7 +104,7 @@ def run_script_multiprocessing(months, years, Inputs):
         pool      = multiprocessing.Pool(processes=num_cores)
                     
         # Generate all possible combinations of months and years
-        pool. starmap(main_solve, [(month, year, Inputs) for month, year in month_year_combinations                    ])
+        pool. starmap(main_solve, [(month, year, Inputs) for month, year in month_year_combinations])
         pool.close()
         pool.join()
     else:
