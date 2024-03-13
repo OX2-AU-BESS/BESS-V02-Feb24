@@ -25,17 +25,17 @@ from datetime   import datetime, timedelta
 class dispatch_optimiser:
     def __init__(self, gen, scn, simulation_params):
         
-        self.gen                = gen        
-        self.scn                = scn        
-        self.optimisation_res   = simulation_params['optimisation_res'  ]
+        self.gen                    = gen        
+        self.scn                    = scn        
+        self.optimisation_res       = simulation_params['optimisation_res'  ]
         self.gen.load_solar_profile(self.optimisation_res) #inflate solar generation profile to 5 minutes
-        self.forecast_res       = simulation_params['forecast_res'      ]
-        self.forecast_data_path = simulation_params['forecast_data_path']
-        self.actual_data_path   = simulation_params['actual_data_path'  ]
-        self.revenue_method     = simulation_params['revenue_method'    ]
-        self.results            = pd.DataFrame(columns=['timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg','bess_combined', 'SOC_profile',
+        self.forecast_res           = simulation_params['forecast_res'      ]
+        self.forecast_data_path     = simulation_params['forecast_data_path']
+        self.actual_data_path       = simulation_params['actual_data_path'  ]
+        self.revenue_method         = simulation_params['revenue_method'    ]
+        self.results                = pd.DataFrame(columns=['timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg','bess_combined', 'SOC_profile',
                                              'foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
-        self.output_directory       =simulation_params['output_directory']
+        self.output_directory       = simulation_params['output_directory']
         self.timestamps             =[]
         self.bess_dsp_energy        =[]
         self.solar_dsp_energy       =[]
@@ -97,7 +97,7 @@ class dispatch_optimiser:
         return selected_rows
     
     #========================================================================================
-    # ==============  ================================   
+    # ============== Printing parameters ====================================================
     def print_params(self):
         print("Generator Parameters:")
         self.gen.print_params()
@@ -110,9 +110,9 @@ class dispatch_optimiser:
         print("revenue_method:"     , self.revenue_method)
         print("\nResults:")
         print(self.results)
-        
+    #========================================================================================
+    # ============== Saving results ========================================================        
     def save_results(self):
-        
         # Get current time
         start_time = datetime.strftime(self.scn.start_timestamp, format="%d_%m_%Y")
         # Format current time as string in yyyymmdd - hhmm format
@@ -123,7 +123,6 @@ class dispatch_optimiser:
     #========================================================================================
     # ============== Printing the parameters ================================================
     def optimise_dispatch(self):
-        
         data_input="aurora"
 
         # ------- set start and end times ----------------------------------------
@@ -250,9 +249,9 @@ class dispatch_optimiser:
             #revenue for individual markets, 
             #final price for everything
         
-        self.results=pd.DataFrame({'timestamp'              :self.timestamps,
-                                   'bess_dsp_energy'        :self.bess_dsp_energy, 
-                                   'solar_dsp_energy'       :self.solar_dsp_energy,
+        self.results=pd.DataFrame({'timestamp'              : self.timestamps,
+                                   'bess_dsp_energy'        : self.bess_dsp_energy, 
+                                   'solar_dsp_energy'       : self.solar_dsp_energy,
                                    'raise6sec'              : self.raise6s, 
                                    'raise60sec'             : self.raise60s, 
                                    'raise5min'              : self.raise5min, 
@@ -295,7 +294,6 @@ class dispatch_optimiser:
     #========================================================================================
     # ============== Calculate Dispatch =====================================================
     def calculate_dispatch(self, timestamp, forecasts, actuals, bat_deg_df):
-        
         #import interpol
         solar_gen_profile = self.gen.solar_gen_profile
         export_limits     = solar_gen_profile.copy()    # interpol.interpolate_profile(self.scn.export_limits, self.optimisation_res)
@@ -618,11 +616,8 @@ class dispatch_optimiser:
             SOC_vec.append(battery_SOC)
         
 
-        
         #write first value of dispatch solution into result and discard the rest of the dispatch, given it will be re-optimised again..
-        
         try:
-        
             with open(self.results_file_path, 'a',newline='') as f:
                 # write the header row if the file is empty
                 if f.tell() == 0:
@@ -679,8 +674,6 @@ class dispatch_optimiser:
         self.RRP_lowerreg           .append(actuals['LOWERREGRRP'   ].iloc[0])
         self.SOC_profile            .append(SOC_vec[0])
         self.bat_capacity           .append(self.gen.bat_capacity)
-        
-    
         self.gen.discharge(self.optimisation_res/60*battery_dispatch_vec[0])
         
         # ---- implement simple degradation model  ---- #
