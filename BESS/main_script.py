@@ -169,7 +169,7 @@ def main_solve(start_date, end_date, Inputs):
                     'forecast_res'              :Inputs['forecast_res'              ], #time resolution of the forecast data to be used.
                     'forecast_data_path'        :Inputs['forecast_path'             ],
                     'revenue_method'            :Inputs['revenue_method'            ],
-                    'actual_data_path'          :os.path.join(Inputs['InputFolderPath'], Inputs['actual_data_path']),
+                    'Price_forecast_path'       :os.path.join(Inputs['InputFolderPath'], Inputs['Price forecast file']),
                     'output_directory'          :Inputs['output_directory'          ],
                     'forecast_Company'          :Inputs['forecast_Company'          ],
                       }

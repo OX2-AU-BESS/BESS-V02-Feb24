@@ -27,12 +27,12 @@ class dispatch_optimiser:
         
         self.gen                    = gen        
         self.scn                    = scn        
-        self.optimisation_res       = simulation_params['optimisation_res'  ]
+        self.optimisation_res       = simulation_params['optimisation_res'   ]
         self.gen.load_solar_profile(self.optimisation_res) #inflate solar generation profile to 5 minutes
-        self.forecast_res           = simulation_params['forecast_res'      ]
-        self.forecast_data_path     = simulation_params['forecast_data_path']
-        self.actual_data_path       = simulation_params['actual_data_path'  ]
-        self.revenue_method         = simulation_params['revenue_method'    ]
+        self.forecast_res           = simulation_params['forecast_res'       ]
+        self.forecast_data_path     = simulation_params['forecast_data_path' ]
+        self.Price_forecast_path    = simulation_params['Price_forecast_path']
+        self.revenue_method         = simulation_params['revenue_method'     ]
         self.results                = pd.DataFrame(columns=['timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg','bess_combined', 'SOC_profile',
                                              'foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
         self.output_directory       = simulation_params['output_directory']
@@ -161,13 +161,13 @@ class dispatch_optimiser:
         group_dates = fore_df.index.to_list()
 
         # ------- Import/prepare actual price data ------------------------------- 
-        actual_df   = pd.read_csv(self.actual_data_path                         )                   
-        actual_df   . drop       (index=actual_df.index[0], axis=0, inplace=True)
-        actual_df   . reset_index(drop=True,inplace=True                        )
+        Price_forecast   = pd.read_csv(self.Price_forecast_path                           )                   
+        Price_forecast   . drop       (index=Price_forecast.index[0], axis=0, inplace=True)
+        Price_forecast   . reset_index(drop=True,inplace=True                             )
         if data_input == "Aurora":
-            actual_df.drop       (actual_df.index[0], inplace=True)
-            actual_df.reset_index(drop=True,inplace=True          )
-            actual_df.rename     (inplace=True,columns={
+            Price_forecast.drop       (Price_forecast.index[0], inplace=True)
+            Price_forecast.reset_index(drop=True,inplace=True               )
+            Price_forecast.rename     (inplace=True,columns={
                                  'Time (UTC)'                     :"Timestamp"      ,
                                  'Wholesale market price'         :'RRP'            ,
                                  'Contingency raise - 6 seconds'  :'RAISE6SECRRP'   ,
@@ -179,7 +179,7 @@ class dispatch_optimiser:
                                  'Contingency lower - 5 minutes'  :'LOWER5MINRRP'   ,
                                  'Lower regulation'               :'LOWERREGRRP'    })
         elif data_input == "Baringa":
-            actual_df.rename(inplace=True,columns={
+            Price_forecast.rename(inplace=True,columns={
                                  'Period'                         :"Timestamp"      ,
                                  'Wholesale (RRN)'                :'RRP'            ,
                                  'RAISE6SEC'                      :'RAISE6SECRRP'   ,
@@ -194,12 +194,12 @@ class dispatch_optimiser:
        
         lst_cols=['RRP','RAISE6SECRRP','RAISE60SECRRP','RAISE5MINRRP','RAISEREGRRP','LOWER6SECRRP','LOWER60SECRRP','LOWER5MINRRP','LOWERREGRRP']
         for i in lst_cols:
-           actual_df[i] = actual_df[i].apply(lambda x: float(x))
-        if type(actual_df["Timestamp"][0]) == datetime:
+           Price_forecast[i] = Price_forecast[i].apply(lambda x: float(x))
+        if type(Price_forecast["Timestamp"][0]) == datetime:
             pass
         else:
             # Type is string
-            actual_df['Timestamp'] = pd.to_datetime(actual_df['Timestamp'],format="%Y/%m/%d %H:%M:%S", dayfirst=True)
+            Price_forecast['Timestamp'] = pd.to_datetime(Price_forecast['Timestamp'],format="%Y/%m/%d %H:%M:%S", dayfirst=True)
             pass
         #actual_df.reset_index(drop=True,inplace=True)
         #actual_df.set_index(actual_df["Timestamp"],inplace=True,drop=True)
@@ -218,7 +218,7 @@ class dispatch_optimiser:
             elif current_time in group_dates:
                 matching_index = fore_df  .index.get_loc(current_time)
                 fore_df_cur    = fore_df  .iloc[matching_index : matching_index+48]
-                act_df_cur     = actual_df.iloc[matching_index : matching_index+48]
+                act_df_cur     = Price_forecast.iloc[matching_index : matching_index+48]
                 start_time_act = time.time()                  
                 # calculate dispatch for current time
                 print(current_time)
