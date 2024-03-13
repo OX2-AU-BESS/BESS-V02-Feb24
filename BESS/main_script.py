@@ -53,8 +53,8 @@ def divide_period(start_date, end_date):
             end_of_month = end_date
         
         # Add timestamp for the current month
-        # timestamps.append((current_date.strftime("%d/%m/%Y"), (end_of_month+ timedelta(days=1)).strftime("%d/%m/%Y")))
-        timestamps.append((current_date.strftime("%d/%m/%Y"), (end_of_month).strftime("%d/%m/%Y")))
+        timestamps.append((current_date.strftime("%d/%m/%Y"), (end_of_month+ timedelta(days=1)).strftime("%d/%m/%Y")))
+        # timestamps.append((current_date.strftime("%d/%m/%Y"), (end_of_month).strftime("%d/%m/%Y")))
         # Move to the next month
         current_date = end_of_month + timedelta(days=1)
 
@@ -83,7 +83,7 @@ def create_folder(directory):
 
 #========================================================================================
 # ============== Parallel computation: Distributing computations on several cores ======= 
-def run_script_multiprocessing(months, years, Inputs):
+def run_script_multiprocessing(Inputs):
     # Get number of cores available: 
     # num_cores = multiprocessing.cpu_count()
 
@@ -97,7 +97,7 @@ def run_script_multiprocessing(months, years, Inputs):
         
 
 
-    month_year_combinations = [(month, year) for year in years   for month in months]
+    # month_year_combinations = [(month, year) for year in years   for month in months]
 
     if Multi_Processing:
         #  Multiprocessing
@@ -198,13 +198,13 @@ create_folder(folder_path)
 main_solve(4, 2025,folder_path)
 """
 if __name__ == "__main__":
-    months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    # duration of opt in years
-    dur   = 3
-    years = [] 
-    # Add the desired range of years
-    for i in range(0,dur):
-        years.append(2025+i)
+    # months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    # # duration of opt in years
+    # dur   = 3
+    # years = [] 
+    # # Add the desired range of years
+    # for i in range(0,dur):
+    #     years.append(2025+i)
         
     Inputs = Import_Inputs. Import_Data()
     
@@ -218,7 +218,7 @@ if __name__ == "__main__":
 
     create_folder(OutputFolder_path)
    
-    df = run_script_multiprocessing(months, years, Inputs)
+    df = run_script_multiprocessing(Inputs)
     #df.to_csv(folder_path+r"\\concatenated_results.csv",index=False)
     end_time = time.time()
     execution_time = end_time - start_time
