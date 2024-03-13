@@ -53,10 +53,11 @@ def divide_period(start_date, end_date):
             end_of_month = end_date
         
         # Add timestamp for the current month
-        timestamps.append((current_date, end_of_month))
-        
+        # timestamps.append((current_date.strftime("%d/%m/%Y"), (end_of_month+ timedelta(days=1)).strftime("%d/%m/%Y")))
+        timestamps.append((current_date.strftime("%d/%m/%Y"), (end_of_month).strftime("%d/%m/%Y")))
         # Move to the next month
         current_date = end_of_month + timedelta(days=1)
+
     
     return timestamps
 
@@ -90,8 +91,10 @@ def run_script_multiprocessing(months, years, Inputs):
 
     # Example usage
     start_date = Inputs['start_timestamp'] # "2023-01-5"
-    end_date  = Inputs['end_timestamp'] #  "2023-05-7"
-    result = divide_period(start_date, end_date)
+    end_date   = Inputs['end_timestamp'] #  "2023-05-7"
+    TimeStamps = divide_period(start_date, end_date)
+
+        
 
 
     month_year_combinations = [(month, year) for year in years   for month in months]
@@ -104,21 +107,19 @@ def run_script_multiprocessing(months, years, Inputs):
         pool      = multiprocessing.Pool(processes=num_cores)
                     
         # Generate all possible combinations of months and years
-        pool. starmap(main_solve, [(month, year, Inputs) for month, year in month_year_combinations])
+        pool. starmap(main_solve, [(StartDate, EndDate, Inputs) for StartDate, EndDate in TimeStamps])
         pool.close()
         pool.join()
     else:
-        for month, year in month_year_combinations:
-            main_solve(month, year, Inputs)
+        for StartDate, EndDate in TimeStamps:
+            main_solve(StartDate, EndDate, Inputs)
             z=0  
-
-    
 
 #========================================================================================
 # ============== Main solver of the algorithm =========================================== 
-def main_solve(month, year, Inputs):   
-    start_date = format_date            (month, year) 
-    end_date   = first_day_of_next_month(start_date )
+def main_solve(start_date, end_date, Inputs):   
+    # start_date = format_date            (month, year) 
+    # end_date   = first_day_of_next_month(start_date )
     
     # ------------- refer the script to the relevant documents --------------------
     # username = '341510anla' # Change this parameter to the username of the computer profile this script is being run on. sim mac: Esco-nas01, Angus PC: 10.0.0.210
