@@ -17,6 +17,7 @@ import csv
 import forecast_forecast    as ff
 import csv
 import datetime
+import Import_Inputs
 
 from pulp       import LpStatus
 from datetime   import datetime, timedelta
@@ -31,12 +32,11 @@ class dispatch_optimiser:
         self.gen.load_solar_profile(self.optimisation_res) #inflate solar generation profile to 5 minutes
         self.forecast_res           = simulation_params['forecast_res'       ]
         self.forecast_data_path     = simulation_params['forecast_data_path' ]
-        self.Price_forecast_path    = simulation_params['Price_forecast_path']
+        self.Price_forecast_df      = simulation_params['Price_forecast_df'  ]
         self.revenue_method         = simulation_params['revenue_method'     ]
         self.results                = pd.DataFrame(columns=['timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg','bess_combined', 'SOC_profile',
                                              'foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
         self.output_directory       = simulation_params['output_directory']
-        self.forecast_Company       = simulation_params['forecast_Company']
         self.foresight_period       = simulation_params['foresight_period']    
         self.timestamps             =[]
         self.bess_dsp_energy        =[]
@@ -125,7 +125,7 @@ class dispatch_optimiser:
     #========================================================================================
     # ============== Printing the parameters ================================================
     def optimise_dispatch(self):
-        data_input=self.forecast_Company
+        
 
         # ------- set start and end times ----------------------------------------
         date_format  = "%d/%m/%Y"
@@ -145,6 +145,9 @@ class dispatch_optimiser:
         
         # ------- generate forecast price using forecast_forecast function !!!---- 
         # this means that each run will have a different forecast profile. -------
+
+        # """ Mojtaba Removed
+
         fore_df      = pd.read_csv(self.forecast_data_path)
         if type(fore_df["Timestamp"][0]) == datetime:
             # Type is `datetime`, Handle accordingly
@@ -160,39 +163,15 @@ class dispatch_optimiser:
         #grouped = fore_df.groupby(pd.Grouper(freq='D'))
         #group_keys = list(grouped.groups.keys())
         group_dates = fore_df.index.to_list()
+        # """
 
         # ------- Import/prepare actual price data ------------------------------- 
-        Price_forecast   = pd.read_csv(self.Price_forecast_path                           )                   
-        Price_forecast   . drop       (index=Price_forecast.index[0], axis=0, inplace=True)
-        Price_forecast   . reset_index(drop=True,inplace=True                             )
-        if data_input == "Aurora":
-            Price_forecast.drop       (Price_forecast.index[0], inplace=True)
-            Price_forecast.reset_index(drop=True,inplace=True               )
-            Price_forecast.rename     (inplace=True,columns={
-                                 'Time (UTC)'                     :"Timestamp"      ,
-                                 'Wholesale market price'         :'RRP'            ,
-                                 'Contingency raise - 6 seconds'  :'RAISE6SECRRP'   ,
-                                 'Contingency raise - 60 seconds' :'RAISE60SECRRP'  ,
-                                 'Contingency raise - 5 minutes'  :'RAISE5MINRRP'   ,
-                                 'Raise regulation'               :'RAISEREGRRP'    ,
-                                 'Contingency lower - 6 seconds'  :'LOWER6SECRRP'   ,
-                                 'Contingency lower - 60 seconds' :'LOWER60SECRRP'  ,
-                                 'Contingency lower - 5 minutes'  :'LOWER5MINRRP'   ,
-                                 'Lower regulation'               :'LOWERREGRRP'    })
-        elif data_input == "Baringa":
-            Price_forecast.rename(inplace=True,columns={
-                                 'Period'                         :"Timestamp"      ,
-                                 'Wholesale (RRN)'                :'RRP'            ,
-                                 'RAISE6SEC'                      :'RAISE6SECRRP'   ,
-                                 'RAISE60SEC'                     :'RAISE60SECRRP'  ,
-                                 'RAISE5MIN'                      :'RAISE5MINRRP'   ,
-                                 'RAISEREG'                       :'RAISEREGRRP'    ,
-                                 'LOWER6SEC'                      :'LOWER6SECRRP'   ,
-                                 'LOWER60SEC'                     :'LOWER60SECRRP'  ,
-                                 'LOWER5MIN'                      :'LOWER5MINRRP'   ,
-                                 'LOWERREG'                       :'LOWERREGRRP'    })
+        Price_forecast = self.Price_forecast_df                 
        # extract the hour and minute from the timestamp and create a new column with the format 'HH:MM'
-       
+        group_dates = Price_forecast.index.to_list()
+        
+
+        """ Mojtaba Removed
         lst_cols=['RRP','RAISE6SECRRP','RAISE60SECRRP','RAISE5MINRRP','RAISEREGRRP','LOWER6SECRRP','LOWER60SECRRP','LOWER5MINRRP','LOWERREGRRP']
         for i in lst_cols:
            Price_forecast[i] = Price_forecast[i].apply(lambda x: float(x))
@@ -202,6 +181,8 @@ class dispatch_optimiser:
             # Type is string
             Price_forecast['Timestamp'] = pd.to_datetime(Price_forecast['Timestamp'],format="%Y/%m/%d %H:%M:%S", dayfirst=True)
             pass
+        """ 
+
         #actual_df.reset_index(drop=True,inplace=True)
         #actual_df.set_index(actual_df["Timestamp"],inplace=True,drop=True)
         #actual_df.drop('Timestamp', axis=1, inplace=True)
@@ -217,13 +198,13 @@ class dispatch_optimiser:
                 current_time += time_resolution
                 pass
             elif current_time in group_dates:
-                matching_index  = fore_df        .index.get_loc(current_time)
-                fore_df_cur     = fore_df        .iloc[matching_index : matching_index+self.foresight_period]
+                matching_index  = Price_forecast        .index.get_loc(current_time)
+                # fore_df_cur     = fore_df        .iloc[matching_index : matching_index+self.foresight_period]
                 forecast_df_cur = Price_forecast .iloc[matching_index : matching_index+self.foresight_period]
                 start_time_act  = time.time()                  
                 # calculate dispatch for current time
                 print(current_time)
-                self.calculate_dispatch(current_time, fore_df_cur, forecast_df_cur, bat_deg_df)          
+                self.calculate_dispatch(current_time, forecast_df_cur, bat_deg_df)          
                 # increment current_time by time_resolution
                 current_time += time_resolution
                 end_time_act = time.time()
@@ -295,7 +276,7 @@ class dispatch_optimiser:
 
     #========================================================================================
     # ============== Calculate Dispatch =====================================================
-    def calculate_dispatch(self, timestamp, forecasts, actuals, bat_deg_df):
+    def calculate_dispatch(self, timestamp, forecasts, bat_deg_df):
         #import interpol
         solar_gen_profile = self.gen.solar_gen_profile
         export_limits     = solar_gen_profile.copy()    # interpol.interpolate_profile(self.scn.export_limits, self.optimisation_res)
@@ -326,9 +307,9 @@ class dispatch_optimiser:
         #-------------------- define decision variables ---------------------------
         #--------------------------------------------------------------------------
         RANGE             = range(0,opt_len)
-        solar_dispatch    = p.LpVariable.dicts('S'  , RANGE, lowBound=0, upBound=self.gen.solar_MW_rating) # define optimisation variables for solar dispatch, include hard limits of inverter capability
-        battery_discharge = p.LpVariable.dicts('B_D', RANGE, lowBound=0, upBound=self.gen.bat_max_MW     ) # define optimisation variables for battery inverter dispatch, include hard limits of inverter capability
-        battery_charge    = p.LpVariable.dicts('B_C', RANGE, lowBound=self.gen.bat_min_MW, upBound=0     )
+        solar_dispatch    = p.LpVariable.dicts('S'  , RANGE, lowBound=0                  , upBound=self.gen.solar_MW_rating) # define optimisation variables for solar dispatch, include hard limits of inverter capability
+        battery_discharge = p.LpVariable.dicts('B_D', RANGE, lowBound=0                  , upBound=self.gen.bat_max_MW     ) # define optimisation variables for battery inverter dispatch, include hard limits of inverter capability
+        battery_charge    = p.LpVariable.dicts('B_C', RANGE, lowBound=self.gen.bat_min_MW, upBound=0                       )
 
 
         #-------------------- variables for fcas markets --------------------------
@@ -665,15 +646,15 @@ class dispatch_optimiser:
         self.foreRRP_lower60s       .append(forecast_LOWER60SEC_RRP       [0])
         self.foreRRP_lower5min      .append(forecast_LOWER5MIN_RRP        [0])
         self.foreRRP_lowerreg       .append(forecast_LOWERREG_RRP         [0])
-        self.RRP_energy             .append(actuals["RRP"           ].iloc[0])
-        self.RRP_raise6s            .append(actuals['RAISE6SECRRP'  ].iloc[0])
-        self.RRP_raise60s           .append(actuals['RAISE60SECRRP' ].iloc[0])
-        self.RRP_raise5min          .append(actuals['RAISE5MINRRP'  ].iloc[0])
-        self.RRP_raisereg           .append(actuals['RAISEREGRRP'   ].iloc[0])
-        self.RRP_lower6s            .append(actuals['LOWER6SECRRP'  ].iloc[0])
-        self.RRP_lower60s           .append(actuals['LOWER60SECRRP' ].iloc[0])
-        self.RRP_lower5min          .append(actuals['LOWER5MINRRP'  ].iloc[0])
-        self.RRP_lowerreg           .append(actuals['LOWERREGRRP'   ].iloc[0])
+        # self.RRP_energy             .append(actuals["RRP"           ].iloc[0])
+        # self.RRP_raise6s            .append(actuals['RAISE6SECRRP'  ].iloc[0])
+        # self.RRP_raise60s           .append(actuals['RAISE60SECRRP' ].iloc[0])
+        # self.RRP_raise5min          .append(actuals['RAISE5MINRRP'  ].iloc[0])
+        # self.RRP_raisereg           .append(actuals['RAISEREGRRP'   ].iloc[0])
+        # self.RRP_lower6s            .append(actuals['LOWER6SECRRP'  ].iloc[0])
+        # self.RRP_lower60s           .append(actuals['LOWER60SECRRP' ].iloc[0])
+        # self.RRP_lower5min          .append(actuals['LOWER5MINRRP'  ].iloc[0])
+        # self.RRP_lowerreg           .append(actuals['LOWERREGRRP'   ].iloc[0])
         self.SOC_profile            .append(SOC_vec[0])
         self.bat_capacity           .append(self.gen.bat_capacity)
         self.gen.discharge(self.optimisation_res/60*battery_dispatch_vec[0])
@@ -690,7 +671,8 @@ class dispatch_optimiser:
             matched_row = bat_deg_df.loc[bat_deg_df['Project Year'] == year]
             self.gen.bat_capacity = matched_row['Usable Capacity'].iloc[0]*self.init_bat_capacity
         #self.gen.discharge(self.optimisation_res/60*battery_total)
-        del  forecasts,actuals,battery_discharge,battery_charge,solar_dispatch,raise6sec,raise60sec,raise5min,raisereg,lower6sec,lower60sec,lower5min,lowerreg,solar_dispatch_vec,battery_energy,battery_discharge_vec,battery_charge_vec,battery_dispatch_vec,raise6sec_disp_vec ,raise60sec_disp_vec,raise5min_disp_vec,raisereg_disp_vec,lower6sec_disp_vec,lower60sec_disp_vec,lower5min_disp_vec,lowerreg_disp_vec,SOC_vec
+        # del  forecasts,actuals,battery_discharge,battery_charge,solar_dispatch,raise6sec,raise60sec,raise5min,raisereg,lower6sec,lower60sec,lower5min,lowerreg,solar_dispatch_vec,battery_energy,battery_discharge_vec,battery_charge_vec,battery_dispatch_vec,raise6sec_disp_vec ,raise60sec_disp_vec,raise5min_disp_vec,raisereg_disp_vec,lower6sec_disp_vec,lower60sec_disp_vec,lower5min_disp_vec,lowerreg_disp_vec,SOC_vec
+        del  forecasts,battery_discharge,battery_charge,solar_dispatch,raise6sec,raise60sec,raise5min,raisereg,lower6sec,lower60sec,lower5min,lowerreg,solar_dispatch_vec,battery_energy,battery_discharge_vec,battery_charge_vec,battery_dispatch_vec,raise6sec_disp_vec ,raise60sec_disp_vec,raise5min_disp_vec,raisereg_disp_vec,lower6sec_disp_vec,lower60sec_disp_vec,lower5min_disp_vec,lowerreg_disp_vec,SOC_vec
         gc.collect()         
         pass
     

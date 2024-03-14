@@ -166,11 +166,9 @@ def main_solve(start_date, end_date, Inputs):
                     'forecast_res'              :Inputs['forecast_res'              ], #time resolution of the forecast data to be used.
                     'forecast_data_path'        :Inputs['forecast_path'             ],
                     'revenue_method'            :Inputs['revenue_method'            ],
-                    'Price_forecast_path'       :os.path.join(Inputs['InputFolderPath'], Inputs['Price forecast file']),
+                    'Price_forecast_df'         :Inputs['Price_forecast_df'         ],
                     'output_directory'          :Inputs['output_directory'          ],
-                    'forecast_Company'          :Inputs['forecast_Company'          ],
                     'foresight_period'          :Inputs['foresight_period'          ],
-
                       }
     
     #  ------ Get information of generator -----------------------------------------   
