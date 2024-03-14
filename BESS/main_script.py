@@ -17,6 +17,7 @@ import Import_Inputs
 from   dispatch_optimiser import dispatch_optimiser
 from   generator          import Generator as gen
 from   scenario           import Scenario  as scn  
+from datetime             import datetime, timedelta
 
 #========================================================================================
 # ============== Calculate the 1st day of the next month ================================ 
@@ -31,12 +32,10 @@ def first_day_of_next_month(date_str):
         year += 1
     return dt.datetime(year, month, day).strftime("%d/%m/%Y")
 # ========================================================================================
-from datetime import datetime, timedelta
-
 def divide_period(start_date, end_date):
     # Parse start_date and end_date strings to datetime objects
     start_date = datetime.strptime(start_date, "%d/%m/%Y")
-    end_date = datetime.strptime(end_date, "%d/%m/%Y")
+    end_date   = datetime.strptime(end_date  , "%d/%m/%Y")
     
     # Initialize a list to store timestamps
     timestamps = []
@@ -57,10 +56,8 @@ def divide_period(start_date, end_date):
         # timestamps.append((current_date.strftime("%d/%m/%Y"), (end_of_month).strftime("%d/%m/%Y")))
         # Move to the next month
         current_date = end_of_month + timedelta(days=1)
-
     
     return timestamps
-
 
 #========================================================================================
 # ============== Format month and year ================================================== 
@@ -172,6 +169,8 @@ def main_solve(start_date, end_date, Inputs):
                     'Price_forecast_path'       :os.path.join(Inputs['InputFolderPath'], Inputs['Price forecast file']),
                     'output_directory'          :Inputs['output_directory'          ],
                     'forecast_Company'          :Inputs['forecast_Company'          ],
+                    'foresight_period'          :Inputs['foresight_period'          ],
+
                       }
     
     #  ------ Get information of generator -----------------------------------------   

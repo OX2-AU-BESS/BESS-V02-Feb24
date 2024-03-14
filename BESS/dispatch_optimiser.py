@@ -37,6 +37,7 @@ class dispatch_optimiser:
                                              'foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
         self.output_directory       = simulation_params['output_directory']
         self.forecast_Company       = simulation_params['forecast_Company']
+        self.foresight_period       = simulation_params['foresight_period']    
         self.timestamps             =[]
         self.bess_dsp_energy        =[]
         self.solar_dsp_energy       =[]
@@ -216,13 +217,13 @@ class dispatch_optimiser:
                 current_time += time_resolution
                 pass
             elif current_time in group_dates:
-                matching_index = fore_df  .index.get_loc(current_time)
-                fore_df_cur    = fore_df  .iloc[matching_index : matching_index+48]
-                act_df_cur     = Price_forecast.iloc[matching_index : matching_index+48]
-                start_time_act = time.time()                  
+                matching_index  = fore_df        .index.get_loc(current_time)
+                fore_df_cur     = fore_df        .iloc[matching_index : matching_index+self.foresight_period]
+                forecast_df_cur = Price_forecast .iloc[matching_index : matching_index+self.foresight_period]
+                start_time_act  = time.time()                  
                 # calculate dispatch for current time
                 print(current_time)
-                self.calculate_dispatch(current_time, fore_df_cur, act_df_cur, bat_deg_df)          
+                self.calculate_dispatch(current_time, fore_df_cur, forecast_df_cur, bat_deg_df)          
                 # increment current_time by time_resolution
                 current_time += time_resolution
                 end_time_act = time.time()
