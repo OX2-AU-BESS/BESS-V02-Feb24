@@ -14,7 +14,6 @@ import pulp                 as p
 import time
 import os
 import csv 
-import forecast_forecast    as ff
 import csv
 import datetime
 import Import_Inputs
@@ -38,41 +37,41 @@ class dispatch_optimiser:
                                              'foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
         self.output_directory       = simulation_params['output_directory']
         self.foresight_period       = simulation_params['foresight_period']    
-        self.timestamps             =[]
-        self.bess_dsp_energy        =[]
-        self.solar_dsp_energy       =[]
-        self.raise6s                =[]
-        self.raise60s               =[]
-        self.raise5min              =[]
-        self.raisereg               =[]
-        self.lower6s                =[]
-        self.lower60s               =[]
-        self.lower5min              =[]
-        self.lowerreg               =[]        
-        self.bess_combined_output   =[]
-        self.RRP_energy             =[]
-        self.RRP_raise6s            =[]
-        self.RRP_raise60s           =[]
-        self.RRP_raise5min          =[]
-        self.RRP_raisereg           =[]
-        self.RRP_lower6s            =[]
-        self.RRP_lower60s           =[]
-        self.RRP_lower5min          =[]
-        self.RRP_lowerreg           =[]
-        self.foreRRP_energy         =[]
-        self.foreRRP_raise6s        =[]
-        self.foreRRP_raise60s       =[]
-        self.foreRRP_raise5min      =[]
-        self.foreRRP_raisereg       =[]
-        self.foreRRP_lower6s        =[]
-        self.foreRRP_lower60s       =[]
-        self.foreRRP_lower5min      =[]
-        self.foreRRP_lowerreg       =[]
-        self.SOC_profile            =[]
-        self.bat_capacity           =[]
-        self.num_cycles             =0
+        self.timestamps             = []
+        self.bess_dsp_energy        = []
+        self.solar_dsp_energy       = []
+        self.raise6s                = []
+        self.raise60s               = []
+        self.raise5min              = []
+        self.raisereg               = []
+        self.lower6s                = []
+        self.lower60s               = []
+        self.lower5min              = []
+        self.lowerreg               = []        
+        self.bess_combined_output   = []
+        self.RRP_energy             = []
+        self.RRP_raise6s            = []
+        self.RRP_raise60s           = []
+        self.RRP_raise5min          = []
+        self.RRP_raisereg           = []
+        self.RRP_lower6s            = []
+        self.RRP_lower60s           = []
+        self.RRP_lower5min          = []
+        self.RRP_lowerreg           = []
+        self.foreRRP_energy         = []
+        self.foreRRP_raise6s        = []
+        self.foreRRP_raise60s       = []
+        self.foreRRP_raise5min      = []
+        self.foreRRP_raisereg       = []
+        self.foreRRP_lower6s        = []
+        self.foreRRP_lower60s       = []
+        self.foreRRP_lower5min      = []
+        self.foreRRP_lowerreg       = []
+        self.SOC_profile            = []
+        self.bat_capacity           = []
+        self.num_cycles             = 0
         self.init_bat_capacity      = self.gen.bat_capacity
-        self.csv_err_count          =0
+        self.csv_err_count          = 0
 
     #========================================================================================
     # ============== Selecting solar data for the time stamp ================================        
@@ -126,7 +125,6 @@ class dispatch_optimiser:
     # ============== Printing the parameters ================================================
     def optimise_dispatch(self):
         
-
         # ------- set start and end times ----------------------------------------
         date_format  = "%d/%m/%Y"
         start_time   = datetime.strptime(self.scn.start_timestamp, date_format)
@@ -143,51 +141,11 @@ class dispatch_optimiser:
         self.results = pd.DataFrame(columns=self.results.columns       )
         self.results . to_csv      (self.results_file_path, index=False) 
         
-        # ------- generate forecast price using forecast_forecast function !!!---- 
-        # this means that each run will have a different forecast profile. -------
-
-        # """ Mojtaba Removed
-
-        fore_df      = pd.read_csv(self.forecast_data_path)
-        if type(fore_df["Timestamp"][0]) == datetime:
-            # Type is `datetime`, Handle accordingly
-            pass
-        else:
-            # Type is string
-            fore_df['Timestamp'] = pd.to_datetime(fore_df['Timestamp'],format="%d/%m/%Y %H:%M", dayfirst=True)
-            pass
-        
-        fore_df.reset_index(drop=True           , inplace=True          )
-        fore_df.set_index  (fore_df["Timestamp"], inplace=True,drop=True)
-        fore_df.drop       ('Timestamp', axis=1 , inplace=True          )
-        #grouped = fore_df.groupby(pd.Grouper(freq='D'))
-        #group_keys = list(grouped.groups.keys())
-        group_dates = fore_df.index.to_list()
-        # """
-
         # ------- Import/prepare actual price data ------------------------------- 
         Price_forecast = self.Price_forecast_df                 
        # extract the hour and minute from the timestamp and create a new column with the format 'HH:MM'
         group_dates = Price_forecast.index.to_list()
-        
-
-        """ Mojtaba Removed
-        lst_cols=['RRP','RAISE6SECRRP','RAISE60SECRRP','RAISE5MINRRP','RAISEREGRRP','LOWER6SECRRP','LOWER60SECRRP','LOWER5MINRRP','LOWERREGRRP']
-        for i in lst_cols:
-           Price_forecast[i] = Price_forecast[i].apply(lambda x: float(x))
-        if type(Price_forecast["Timestamp"][0]) == datetime:
-            pass
-        else:
-            # Type is string
-            Price_forecast['Timestamp'] = pd.to_datetime(Price_forecast['Timestamp'],format="%Y/%m/%d %H:%M:%S", dayfirst=True)
-            pass
-        """ 
-
-        #actual_df.reset_index(drop=True,inplace=True)
-        #actual_df.set_index(actual_df["Timestamp"],inplace=True,drop=True)
-        #actual_df.drop('Timestamp', axis=1, inplace=True)
-        #grouped_act = actual_df.groupby(pd.Grouper(freq='D'))
-        
+               
         # ------- Import battery degradation -------------------------------------
         self.scn.start_timestamp= datetime.strptime(self.scn.start_timestamp, '%d/%m/%Y')
         bat_deg_df= pd.read_csv(self.gen.bat_deg_profile)
