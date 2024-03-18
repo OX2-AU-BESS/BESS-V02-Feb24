@@ -36,7 +36,7 @@ def run_script_multiprocessing(Inputs):
         print(f"Number of CPU cores: {num_cores}")
         pool      = multiprocessing.Pool(processes=num_cores)
                     
-        # Generate all possible combinations of months and years
+        # Run over all possible combinations of months and years
         pool. starmap(main_solve, [(StartDate, EndDate, Inputs) for StartDate, EndDate in TimeStamps])
         pool.close()
         pool.join()
@@ -100,10 +100,11 @@ def main_solve(start_date, end_date, Inputs):
     #  ------ Get details of scenario ----------------------------------------------
     scenario  = scn(scenario_parameters)
 
+    #  ------ Get SOC of scenario --------------------------------------------------
     generator.set_SOC(scenario.battery_SOC)
     
     #  ------ optimisation ---------------------------------------------------------
-    optimisation = dispatch_optimiser(generator, scenario, solver_parameters)  
+    optimisation = dispatch_optimiser(generator, scenario, solver_parameters)  # Construct optimisation variable
     optimisation . optimise_dispatch()     
     
     #optimisation.save_results(r"C:\Users\SIMULATION\ESCO Pacific\ESCO - Data\36. Design\Tools\BatteryModel\Pythonscripts\PulpSolver_MervBranch\results")
