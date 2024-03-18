@@ -68,8 +68,8 @@ def main_solve(start_date, end_date, Inputs):
                     }
     
     scenario_parameters={
-                    'start_timestamp'           :start_date                          , #scn_info['start_timestamp'], 1/10/2022
-                    'end_timestamp'             :end_date                            , #scn_info['end_timestamp'], 30/06/2060 13:30
+                    'start_timestamp'           :start_date                          , 
+                    'end_timestamp'             :end_date                            , 
                     'overall_start_time'        :Inputs['overall_start_time'        ],
                     'battery_SOC'               :Inputs['battery_SOC'               ],
                     'target_SOC'                :Inputs['target_SOC'                ],
