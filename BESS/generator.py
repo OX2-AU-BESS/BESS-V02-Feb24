@@ -28,7 +28,7 @@ class Generator:
         self.location               = gen_params['location'                 ]
         self.SOC                    = 0
 
-
+    """
     #========================================================================================
     # ============== charge battery by a set amount of MWh ==================================    
     def charge(self, MWh):
@@ -36,7 +36,7 @@ class Generator:
             self.SOC=self.SOC+MWh*(1-((1-self.round_trip_efficiency)/2.0))/self.bat_capacity
         else:
             self.SOC=self.SOC+MWh*(1+((1-self.round_trip_efficiency)/2.0))/self.bat_capacity
-
+    """
 
     #========================================================================================
     # ============== Import solar generation ================================================         
