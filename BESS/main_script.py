@@ -92,6 +92,7 @@ def main_solve(start_date, end_date, Inputs):
                     'Price_forecast_df'         :Inputs['Price_forecast_df'         ],
                     'output_directory'          :Inputs['output_directory'          ],
                     'foresight_period'          :Inputs['foresight_period'          ],
+                    'Saving_period'             :Inputs['Saving_period'             ],
                       }
     
     #  ------ Get information of generator -----------------------------------------   
