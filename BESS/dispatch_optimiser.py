@@ -10,6 +10,7 @@ This class carries out the dispatch optimisation and the
 """
 import gc
 import pandas               as pd
+import numpy                as np
 import pulp                 as p
 import time
 import os
@@ -35,8 +36,9 @@ class dispatch_optimiser:
         self.revenue_method         = simulation_params['revenue_method'     ]
         self.results                = pd.DataFrame(columns=['timestamp', 'bess_dsp_energy','solar_dsp_energy','raise6sec', 'raise60sec', 'raise5min', 'raisereg', 'lower6s', 'lower60s', 'lower5min', 'lowerreg','bess_combined', 'SOC_profile',
                                              'foreRRP_energy','foreRRP_raise6sec', 'foreRRP_raise60sec', 'foreRRP_raise5min', 'foreRRP_raisereg', 'foreRRP_lower6s', 'foreRRP_lower60s', 'foreRRP_lower5min', 'foreRRP_lowerreg',"Battery Capacity (MWhr)","Solver Status"]) #'pre_dispatch',
-        self.output_directory       = simulation_params['output_directory']
-        self.foresight_period       = simulation_params['foresight_period']    
+        self.output_directory       = simulation_params['output_directory'   ]
+        self.foresight_period       = simulation_params['foresight_period'   ]
+        self.Saving_period          = simulation_params['Saving_period'      ]    
         self.timestamps             = []
         self.bess_dsp_energy        = []
         self.solar_dsp_energy       = []
@@ -131,7 +133,7 @@ class dispatch_optimiser:
         end_time     = datetime.strptime(self.scn.end_timestamp  , date_format)
         
         # ------- set time resolution to 1 hour ----------------------------------
-        time_resolution = timedelta(minutes=30)
+        time_resolution = timedelta(minutes=1440)
                 
         # ------- loop over time frame with set resolution  ----------------------
         current_time = start_time        
@@ -190,7 +192,13 @@ class dispatch_optimiser:
             #revenue for individual markets, 
             #final price for everything
         
-        self.results=pd.DataFrame({'timestamp'              : self.timestamps,
+        def List_dictionary (Variable):
+            all_values = []
+            for value in Variable:
+                all_values.extend(value)
+            return Variable    
+
+        self.results=pd.DataFrame({'timestamp'              : List_dictionary(self.timestamps),
                                    'bess_dsp_energy'        : self.bess_dsp_energy, 
                                    'solar_dsp_energy'       : self.solar_dsp_energy,
                                    'raise6sec'              : self.raise6s, 
@@ -221,7 +229,7 @@ class dispatch_optimiser:
                                    'foreRRP_lower60s'       : self.foreRRP_lower60s, 
                                    'foreRRP_lower5min'      : self.foreRRP_lower5min, 
                                    'foreRRP_lowerreg'       : self.foreRRP_lowerreg,
-                                   'Battery Capacity (MWhr)':self.bat_capacity
+                                   'Battery Capacity (MWhr)': self.bat_capacity
                                    })
         self.save_results()
         # Get the captured stdout as a string, for logging purposes.
@@ -563,59 +571,76 @@ class dispatch_optimiser:
                 # write the header row if the file is empty
                 if f.tell() == 0:
                     self.results.to_csv(f, header=True, index=False)
+
+                for i in range (self.Saving_period):    
                 
-                new_row = {'timestamp'          :forecasts.index        [0],   'bess_dsp_energy'    :battery_energy         [0],   'solar_dsp_energy':solar_dispatch_vec[0],
-                           'raise6sec'          :raise6sec_disp_vec     [0],   'raise60sec'         :raise60sec_disp_vec    [0],   'raise5min':raise5min_disp_vec       [0],
-                           'raisereg'           :raisereg_disp_vec      [0],   'lower6s'            :lower6sec_disp_vec     [0],   'lower60s':lower60sec_disp_vec       [0],
-                           'lower5min'          :lower5min_disp_vec     [0],   'lowerreg'           :lowerreg_disp_vec      [0],   'bess_combined':battery_dispatch_vec [0],
-                           'SOC_profile'        :SOC_vec                [0],   'foreRRP_energy'     :forecast_price_profile [0],
-                           'foreRRP_raise6sec'  :forecast_RAISE6SEC_RRP [0],   'foreRRP_raise60sec' :forecast_RAISE60SEC_RRP[0],
-                           'foreRRP_raise5min'  :forecast_RAISE5MIN_RRP [0],   'foreRRP_raisereg'   :forecast_RAISEREG_RRP  [0],
-                           'foreRRP_lower6s'    :forecast_LOWER6SEC_RRP [0],   'foreRRP_lower60s'   :forecast_LOWER60SEC_RRP[0],
-                           'foreRRP_lower5min'  :forecast_LOWER5MIN_RRP [0],   'foreRRP_lowerreg'   :forecast_LOWERREG_RRP  [0],   "Battery Capacity (MWhr)":self.gen.bat_capacity,"Solver Status":LpStatus[prob.status]}
-                            # add the new row to the dataframe
-                writer = csv.DictWriter(f, fieldnames=new_row)
-    
-                    # Write the new data to the CSV file
-                writer.writerow(new_row)
+                    new_row = {
+                            'timestamp'          :forecasts.index        [i],   
+                            'bess_dsp_energy'    :battery_energy         [i],   
+                            'solar_dsp_energy'   :solar_dispatch_vec     [i],
+                            'raise6sec'          :raise6sec_disp_vec     [i],   
+                            'raise60sec'         :raise60sec_disp_vec    [i],   
+                            'raise5min'          :raise5min_disp_vec     [i],
+                            'raisereg'           :raisereg_disp_vec      [i],   
+                            'lower6s'            :lower6sec_disp_vec     [i],   
+                            'lower60s'           :lower60sec_disp_vec    [i],
+                            'lower5min'          :lower5min_disp_vec     [i],   
+                            'lowerreg'           :lowerreg_disp_vec      [i],   
+                            'bess_combined'      :battery_dispatch_vec   [i],
+                            'SOC_profile'        :SOC_vec                [i],   
+                            'foreRRP_energy'     :forecast_price_profile [i],
+                            'foreRRP_raise6sec'  :forecast_RAISE6SEC_RRP [i],   
+                            'foreRRP_raise60sec' :forecast_RAISE60SEC_RRP[i],
+                            'foreRRP_raise5min'  :forecast_RAISE5MIN_RRP [i],   
+                            'foreRRP_raisereg'   :forecast_RAISEREG_RRP  [i],
+                            'foreRRP_lower6s'    :forecast_LOWER6SEC_RRP [i],   
+                            'foreRRP_lower60s'   :forecast_LOWER60SEC_RRP[i],
+                            'foreRRP_lower5min'  :forecast_LOWER5MIN_RRP [i],   
+                            'foreRRP_lowerreg'   :forecast_LOWERREG_RRP  [i],   
+                            'Battery Capacity (MWhr)':self.gen.bat_capacity,
+                            'Solver Status'      :LpStatus[prob.status],
+                            }
+                                # add the new row to the dataframe
+                    writer = csv.DictWriter(f, fieldnames=new_row)
+                        # Write the new data to the CSV file
+                    writer.writerow(new_row)
         except: 
             print(f"{self.results_file_path} couldn't be opened due to an error")
             self.csv_err_count+=1
         
         #----- Assign values to self values to save to csv at optimisation completion------
-        self.timestamps             .append(forecasts.index               [0])
-        self.bess_dsp_energy        .append(battery_energy                [0])
-        self.solar_dsp_energy       .append(solar_dispatch_vec            [0])
-        self.raise6s                .append(raise6sec_disp_vec            [0])
-        self.raise60s               .append(raise60sec_disp_vec           [0])
-        self.raise5min              .append(raise5min_disp_vec            [0])
-        self.raisereg               .append(raisereg_disp_vec             [0])
-        self.lower6s                .append(lower6sec_disp_vec            [0])
-        self.lower60s               .append(lower60sec_disp_vec           [0])
-        self.lower5min              .append(lower5min_disp_vec            [0])
-        self.lowerreg               .append(lowerreg_disp_vec             [0])        
-        self.bess_combined_output   .append(battery_dispatch_vec          [0])
-        self.foreRRP_energy         .append(forecast_price_profile        [0])
-        self.foreRRP_raise6s        .append(forecast_RAISE6SEC_RRP        [0])
-        self.foreRRP_raise60s       .append(forecast_RAISE60SEC_RRP       [0])
-        self.foreRRP_raise5min      .append(forecast_RAISE5MIN_RRP        [0])
-        self.foreRRP_raisereg       .append(forecast_RAISEREG_RRP         [0])
-        self.foreRRP_lower6s        .append(forecast_LOWER6SEC_RRP        [0])
-        self.foreRRP_lower60s       .append(forecast_LOWER60SEC_RRP       [0])
-        self.foreRRP_lower5min      .append(forecast_LOWER5MIN_RRP        [0])
-        self.foreRRP_lowerreg       .append(forecast_LOWERREG_RRP         [0])
-        # self.RRP_energy             .append(actuals["RRP"           ].iloc[0])
-        # self.RRP_raise6s            .append(actuals['RAISE6SECRRP'  ].iloc[0])
-        # self.RRP_raise60s           .append(actuals['RAISE60SECRRP' ].iloc[0])
-        # self.RRP_raise5min          .append(actuals['RAISE5MINRRP'  ].iloc[0])
-        # self.RRP_raisereg           .append(actuals['RAISEREGRRP'   ].iloc[0])
-        # self.RRP_lower6s            .append(actuals['LOWER6SECRRP'  ].iloc[0])
-        # self.RRP_lower60s           .append(actuals['LOWER60SECRRP' ].iloc[0])
-        # self.RRP_lower5min          .append(actuals['LOWER5MINRRP'  ].iloc[0])
-        # self.RRP_lowerreg           .append(actuals['LOWERREGRRP'   ].iloc[0])
-        self.SOC_profile            .append(SOC_vec[0])
+        self.timestamps             .append(forecasts.index               [0:self.Saving_period])
+        self.bess_dsp_energy        .append(battery_energy                [0:self.Saving_period])
+        self.solar_dsp_energy       .append(solar_dispatch_vec            [0:self.Saving_period])
+        self.raise6s                .append(raise6sec_disp_vec            [0:self.Saving_period])
+        self.raise60s               .append(raise60sec_disp_vec           [0:self.Saving_period])
+        self.raise5min              .append(raise5min_disp_vec            [0:self.Saving_period])
+        self.raisereg               .append(raisereg_disp_vec             [0:self.Saving_period])
+        self.lower6s                .append(lower6sec_disp_vec            [0:self.Saving_period])
+        self.lower60s               .append(lower60sec_disp_vec           [0:self.Saving_period])
+        self.lower5min              .append(lower5min_disp_vec            [0:self.Saving_period])
+        self.lowerreg               .append(lowerreg_disp_vec             [0:self.Saving_period])        
+        self.bess_combined_output   .append(battery_dispatch_vec          [0:self.Saving_period])
+        self.foreRRP_energy         .append(forecast_price_profile        [0:self.Saving_period])
+        self.foreRRP_raise6s        .append(forecast_RAISE6SEC_RRP        [0:self.Saving_period])
+        self.foreRRP_raise60s       .append(forecast_RAISE60SEC_RRP       [0:self.Saving_period])
+        self.foreRRP_raise5min      .append(forecast_RAISE5MIN_RRP        [0:self.Saving_period])
+        self.foreRRP_raisereg       .append(forecast_RAISEREG_RRP         [0:self.Saving_period])
+        self.foreRRP_lower6s        .append(forecast_LOWER6SEC_RRP        [0:self.Saving_period])
+        self.foreRRP_lower60s       .append(forecast_LOWER60SEC_RRP       [0:self.Saving_period])
+        self.foreRRP_lower5min      .append(forecast_LOWER5MIN_RRP        [0:self.Saving_period])
+        self.foreRRP_lowerreg       .append(forecast_LOWERREG_RRP         [0:self.Saving_period])
+        # self.RRP_energy             .append(actuals["RRP"           ].iloc[0:self.Saving_period])
+        # self.RRP_raise6s            .append(actuals['RAISE6SECRRP'  ].iloc[0:self.Saving_period])
+        # self.RRP_raise60s           .append(actuals['RAISE60SECRRP' ].iloc[0:self.Saving_period])
+        # self.RRP_raise5min          .append(actuals['RAISE5MINRRP'  ].iloc[0:self.Saving_period])
+        # self.RRP_raisereg           .append(actuals['RAISEREGRRP'   ].iloc[0:self.Saving_period])
+        # self.RRP_lower6s            .append(actuals['LOWER6SECRRP'  ].iloc[0:self.Saving_period])
+        # self.RRP_lower60s           .append(actuals['LOWER60SECRRP' ].iloc[0:self.Saving_period])
+        # self.RRP_lower5min          .append(actuals['LOWER5MINRRP'  ].iloc[0:self.Saving_period])
+        # self.RRP_lowerreg           .append(actuals['LOWERREGRRP'   ].iloc[0:self.Saving_period])
+        self.SOC_profile            .append(SOC_vec                       [0:self.Saving_period])
         self.bat_capacity           .append(self.gen.bat_capacity)
-        self.gen.discharge(self.optimisation_res/60*battery_dispatch_vec[0])
         
         # ---- implement simple degradation model  ---- #
         start_year_diff = self.scn.start_timestamp.year-datetime.strptime(self.scn.overall_start_timestamp, '%d/%m/%Y').year
