@@ -18,6 +18,7 @@ import csv
 import csv
 import datetime
 import Import_Inputs
+import Data_Processing
 
 from pulp       import LpStatus
 from datetime   import datetime, timedelta
@@ -184,52 +185,32 @@ class dispatch_optimiser:
         
             print(f"Current time: {hour}:{minute} \n")
         #print("finished")
-           
-            
-        #return results vector consisting of data frame containing:
-            #intermediate dispatch solutions (BESS and solar), 
-            #final dispatch (BESS and Solar), 
-            #revenue for individual markets, 
-            #final price for everything
         
-        def List_dictionary (Variable):
-            all_values = []
-            for value in Variable:
-                all_values.extend(value)
-            return Variable    
 
-        self.results=pd.DataFrame({'timestamp'              : List_dictionary(self.timestamps),
-                                   'bess_dsp_energy'        : self.bess_dsp_energy, 
-                                   'solar_dsp_energy'       : self.solar_dsp_energy,
-                                   'raise6sec'              : self.raise6s, 
-                                   'raise60sec'             : self.raise60s, 
-                                   'raise5min'              : self.raise5min, 
-                                   'raisereg'               : self.raisereg, 
-                                   'lower6s'                : self.lower6s, 
-                                   'lower60s'               : self.lower60s, 
-                                   'lower5min'              : self.lower5min, 
-                                   'lowerreg'               : self.lowerreg,
-                                   'bess_combined'          : self.bess_combined_output, 
-                                   'SOC_profile'            : self.SOC_profile,
-                                   'RRP_energy'             : self.RRP_energy,
-                                   'RRP_raise6sec'          : self.RRP_raise6s, 
-                                   'RRP_raise60sec'         : self.RRP_raise60s, 
-                                   'RRP_raise5min'          : self.RRP_raise5min, 
-                                   'RRP_raisereg'           : self.RRP_raisereg, 
-                                   'RRP_lower6s'            : self.RRP_lower6s, 
-                                   'RRP_lower60s'           : self.RRP_lower60s, 
-                                   'RRP_lower5min'          : self.RRP_lower5min, 
-                                   'RRP_lowerreg'           : self.RRP_lowerreg,
-                                   'foreRRP_energy'         : self.foreRRP_energy,
-                                   'foreRRP_raise6sec'      : self.foreRRP_raise6s, 
-                                   'foreRRP_raise60sec'     : self.foreRRP_raise60s, 
-                                   'foreRRP_raise5min'      : self.foreRRP_raise5min, 
-                                   'foreRRP_raisereg'       : self.foreRRP_raisereg, 
-                                   'foreRRP_lower6s'        : self.foreRRP_lower6s, 
-                                   'foreRRP_lower60s'       : self.foreRRP_lower60s, 
-                                   'foreRRP_lower5min'      : self.foreRRP_lower5min, 
-                                   'foreRRP_lowerreg'       : self.foreRRP_lowerreg,
-                                   'Battery Capacity (MWhr)': self.bat_capacity
+        self.results=pd.DataFrame({'timestamp'              : Data_Processing.List_dictionary(self.timestamps          ),
+                                   'bess_dsp_energy'        : Data_Processing.List_dictionary(self.bess_dsp_energy     ), 
+                                   'solar_dsp_energy'       : Data_Processing.List_dictionary(self.solar_dsp_energy    ),
+                                   'raise6sec'              : Data_Processing.List_dictionary(self.raise6s             ), 
+                                   'raise60sec'             : Data_Processing.List_dictionary(self.raise60s            ), 
+                                   'raise5min'              : Data_Processing.List_dictionary(self.raise5min           ), 
+                                   'raisereg'               : Data_Processing.List_dictionary(self.raisereg            ), 
+                                   'lower6s'                : Data_Processing.List_dictionary(self.lower6s             ), 
+                                   'lower60s'               : Data_Processing.List_dictionary(self.lower60s            ), 
+                                   'lower5min'              : Data_Processing.List_dictionary(self.lower5min           ), 
+                                   'lowerreg'               : Data_Processing.List_dictionary(self.lowerreg            ),
+                                   'bess_combined'          : Data_Processing.List_dictionary(self.bess_combined_output), 
+                                   'SOC_profile'            : Data_Processing.List_dictionary(self.SOC_profile         ),
+
+                                   'foreRRP_energy'         : Data_Processing.List_dictionary(self.foreRRP_energy      ),
+                                   'foreRRP_raise6sec'      : Data_Processing.List_dictionary(self.foreRRP_raise6s     ), 
+                                   'foreRRP_raise60sec'     : Data_Processing.List_dictionary(self.foreRRP_raise60s    ), 
+                                   'foreRRP_raise5min'      : Data_Processing.List_dictionary(self.foreRRP_raise5min   ), 
+                                   'foreRRP_raisereg'       : Data_Processing.List_dictionary(self.foreRRP_raisereg    ), 
+                                   'foreRRP_lower6s'        : Data_Processing.List_dictionary(self.foreRRP_lower6s     ), 
+                                   'foreRRP_lower60s'       : Data_Processing.List_dictionary(self.foreRRP_lower60s    ), 
+                                   'foreRRP_lower5min'      : Data_Processing.List_dictionary(self.foreRRP_lower5min   ), 
+                                   'foreRRP_lowerreg'       : Data_Processing.List_dictionary(self.foreRRP_lowerreg    ),
+                                   'Battery Capacity (MWhr)': Data_Processing.List_dictionary(self.bat_capacity        ),
                                    })
         self.save_results()
         # Get the captured stdout as a string, for logging purposes.
@@ -622,25 +603,16 @@ class dispatch_optimiser:
         self.lowerreg               .append(lowerreg_disp_vec             [0:self.Saving_period])        
         self.bess_combined_output   .append(battery_dispatch_vec          [0:self.Saving_period])
         self.foreRRP_energy         .append(forecast_price_profile        [0:self.Saving_period])
-        self.foreRRP_raise6s        .append(forecast_RAISE6SEC_RRP        [0:self.Saving_period])
-        self.foreRRP_raise60s       .append(forecast_RAISE60SEC_RRP       [0:self.Saving_period])
-        self.foreRRP_raise5min      .append(forecast_RAISE5MIN_RRP        [0:self.Saving_period])
-        self.foreRRP_raisereg       .append(forecast_RAISEREG_RRP         [0:self.Saving_period])
-        self.foreRRP_lower6s        .append(forecast_LOWER6SEC_RRP        [0:self.Saving_period])
-        self.foreRRP_lower60s       .append(forecast_LOWER60SEC_RRP       [0:self.Saving_period])
-        self.foreRRP_lower5min      .append(forecast_LOWER5MIN_RRP        [0:self.Saving_period])
-        self.foreRRP_lowerreg       .append(forecast_LOWERREG_RRP         [0:self.Saving_period])
-        # self.RRP_energy             .append(actuals["RRP"           ].iloc[0:self.Saving_period])
-        # self.RRP_raise6s            .append(actuals['RAISE6SECRRP'  ].iloc[0:self.Saving_period])
-        # self.RRP_raise60s           .append(actuals['RAISE60SECRRP' ].iloc[0:self.Saving_period])
-        # self.RRP_raise5min          .append(actuals['RAISE5MINRRP'  ].iloc[0:self.Saving_period])
-        # self.RRP_raisereg           .append(actuals['RAISEREGRRP'   ].iloc[0:self.Saving_period])
-        # self.RRP_lower6s            .append(actuals['LOWER6SECRRP'  ].iloc[0:self.Saving_period])
-        # self.RRP_lower60s           .append(actuals['LOWER60SECRRP' ].iloc[0:self.Saving_period])
-        # self.RRP_lower5min          .append(actuals['LOWER5MINRRP'  ].iloc[0:self.Saving_period])
-        # self.RRP_lowerreg           .append(actuals['LOWERREGRRP'   ].iloc[0:self.Saving_period])
+        self.foreRRP_raise6s        .append(forecast_RAISE6SEC_RRP .values[0:self.Saving_period])
+        self.foreRRP_raise60s       .append(forecast_RAISE60SEC_RRP.values[0:self.Saving_period])
+        self.foreRRP_raise5min      .append(forecast_RAISE5MIN_RRP .values[0:self.Saving_period])
+        self.foreRRP_raisereg       .append(forecast_RAISEREG_RRP  .values[0:self.Saving_period])
+        self.foreRRP_lower6s        .append(forecast_LOWER6SEC_RRP .values[0:self.Saving_period])
+        self.foreRRP_lower60s       .append(forecast_LOWER60SEC_RRP.values[0:self.Saving_period])
+        self.foreRRP_lower5min      .append(forecast_LOWER5MIN_RRP .values[0:self.Saving_period])
+        self.foreRRP_lowerreg       .append(forecast_LOWERREG_RRP  .values[0:self.Saving_period])
         self.SOC_profile            .append(SOC_vec                       [0:self.Saving_period])
-        self.bat_capacity           .append(self.gen.bat_capacity)
+        self.bat_capacity           .append([self.gen.bat_capacity] * self.Saving_period) 
         
         # ---- implement simple degradation model  ---- #
         start_year_diff = self.scn.start_timestamp.year-datetime.strptime(self.scn.overall_start_timestamp, '%d/%m/%Y').year
