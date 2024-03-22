@@ -100,21 +100,6 @@ class dispatch_optimiser:
         """
         return selected_rows
     
-    #========================================================================================
-    # ============== Printing parameters ====================================================
-    def print_params(self):
-        print("Generator Parameters:")
-        self.gen.print_params()
-        print("\nScenario Parameters:")
-        self.scn.print_params()
-        print("\nSimulation Parameters:")
-        print("optimisation_res:"   , self.optimisation_res)
-        print("forecast_res:"       , self.forecast_res)
-        print("forecast_data_path:" , self.forecast_data_path)
-        print("revenue_method:"     , self.revenue_method)
-        print("\nResults:")
-        print(self.results)
-
         
     #========================================================================================
     # ============== Printing the parameters ================================================

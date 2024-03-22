@@ -25,8 +25,8 @@ def run_script_multiprocessing(Inputs):
     Multi_Processing= Inputs['Multi-Processing']
 
     # Example usage
-    start_date = Inputs['start_timestamp'] # "2023-01-5"
-    end_date   = Inputs['end_timestamp'  ] #  "2023-05-7"
+    start_date = Inputs['start_timestamp'] 
+    end_date   = Inputs['end_timestamp'  ] 
     TimeStamps = scenario.divide_period(start_date, end_date)
       
     if Multi_Processing:

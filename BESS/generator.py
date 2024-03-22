@@ -77,24 +77,6 @@ class Generator:
     # ============== Set SOC directly (from 0 to 1) ========================================= 
     def set_SOC(self, SOC_percent):
         self.SOC=SOC_percent
-
-
-    #========================================================================================
-    # ============== Printing the parameters ================================================        
-    def print_params(self):
-        print("plant_max_MW:     "      , self.plant_max_MW         )
-        print("plant_min_MW:     "      , self.plant_min_MW         )
-        print("solar_MW_rating:  "      , self.solar_MW_rating      )
-        print("bat_max_MW:       "      , self.bat_max_MW           )
-        print("bat_min_MW:       "      , self.bat_min_MW           )
-        print("bat_capacity:     "      , self.bat_capacity         )
-        print("min_SOC:          "      , self.min_SOC              )
-        print("max_SOC:          "      , self.max_SOC              )
-        print("round_trip_efficiency: " , self.round_trip_efficiency)
-        print("solar_gen_profile:"      , self.solar_gen_profile    )
-        print("location:         "      , self.location             )    
-        print("SOC:              "      , self.SOC                  )
-
         
         
         

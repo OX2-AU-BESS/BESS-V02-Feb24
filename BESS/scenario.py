@@ -24,18 +24,6 @@ class Scenario:
         self.data_source                = scenario_params['data_source'                 ]
         self.export_limits              = scenario_params['export_limits'               ]
     
-    def print_params(self):
-        print("start_timestamp:          ", self.start_timestamp        )
-        print("end_timestamp:            ", self.end_timestamp          )
-        print("battery_SOC:              ", self.battery_SOC            )
-        print("target_SOC:               ", self.target_SOC             )
-        print("max_cycles:               ", self.max_cycles             )
-        print("FCAS_occurance:           ", self.FCAS_occurance         )
-        print("FCAS_MW_Participation:    ", self.FCAS_MW_Participation  )
-        print("LGC_price:                ", self.LGC_price              )
-        print("max_FCAS_percent:         ", self.max_FCAS_percent       )
-        print("data_source:              ", self.data_source            )
-        print("export_limits:            ", self.export_limits          )
 
 #========================================================================================
 # ================== Divide simulation period into monthly sub-periods ==================
