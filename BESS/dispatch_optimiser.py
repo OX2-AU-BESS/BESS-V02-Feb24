@@ -114,15 +114,7 @@ class dispatch_optimiser:
         print("revenue_method:"     , self.revenue_method)
         print("\nResults:")
         print(self.results)
-    #========================================================================================
-    # ============== Saving results ========================================================        
-    def save_results(self):
-        # Get current time
-        start_time = datetime.strftime(self.scn.start_timestamp, format="%d_%m_%Y")
-        # Format current time as string in yyyymmdd - hhmm format
-        
-        self.results.to_csv(self.output_directory+"\\"+start_time+"dataframe_dispatch_results.csv", index=False)
-        pass
+
         
     #========================================================================================
     # ============== Printing the parameters ================================================
@@ -185,35 +177,13 @@ class dispatch_optimiser:
         
             print(f"Current time: {hour}:{minute} \n")
         #print("finished")
-        
+            
+            
+         # ------- Form and add 'self.result' dataframe (i.e., Output datafram) -----
+        self= Data_Processing.SelectingNaming_OutputVariables(self)
 
-        self.results=pd.DataFrame({'timestamp'              : Data_Processing.List_dictionary(self.timestamps          ),
-                                   'bess_dsp_energy'        : Data_Processing.List_dictionary(self.bess_dsp_energy     ), 
-                                   'solar_dsp_energy'       : Data_Processing.List_dictionary(self.solar_dsp_energy    ),
-                                   'raise6sec'              : Data_Processing.List_dictionary(self.raise6s             ), 
-                                   'raise60sec'             : Data_Processing.List_dictionary(self.raise60s            ), 
-                                   'raise5min'              : Data_Processing.List_dictionary(self.raise5min           ), 
-                                   'raisereg'               : Data_Processing.List_dictionary(self.raisereg            ), 
-                                   'lower6s'                : Data_Processing.List_dictionary(self.lower6s             ), 
-                                   'lower60s'               : Data_Processing.List_dictionary(self.lower60s            ), 
-                                   'lower5min'              : Data_Processing.List_dictionary(self.lower5min           ), 
-                                   'lowerreg'               : Data_Processing.List_dictionary(self.lowerreg            ),
-                                   'bess_combined'          : Data_Processing.List_dictionary(self.bess_combined_output), 
-                                   'SOC_profile'            : Data_Processing.List_dictionary(self.SOC_profile         ),
-
-                                   'foreRRP_energy'         : Data_Processing.List_dictionary(self.foreRRP_energy      ),
-                                   'foreRRP_raise6sec'      : Data_Processing.List_dictionary(self.foreRRP_raise6s     ), 
-                                   'foreRRP_raise60sec'     : Data_Processing.List_dictionary(self.foreRRP_raise60s    ), 
-                                   'foreRRP_raise5min'      : Data_Processing.List_dictionary(self.foreRRP_raise5min   ), 
-                                   'foreRRP_raisereg'       : Data_Processing.List_dictionary(self.foreRRP_raisereg    ), 
-                                   'foreRRP_lower6s'        : Data_Processing.List_dictionary(self.foreRRP_lower6s     ), 
-                                   'foreRRP_lower60s'       : Data_Processing.List_dictionary(self.foreRRP_lower60s    ), 
-                                   'foreRRP_lower5min'      : Data_Processing.List_dictionary(self.foreRRP_lower5min   ), 
-                                   'foreRRP_lowerreg'       : Data_Processing.List_dictionary(self.foreRRP_lowerreg    ),
-                                   'Battery Capacity (MWhr)': Data_Processing.List_dictionary(self.bat_capacity        ),
-                                   })
-        self.save_results()
-        # Get the captured stdout as a string, for logging purposes.
+        # Save the csv file of full resul
+        Data_Processing.save_results(self)
         
         self.results = self.results.drop(self.results.index[0])
         # Restore stdout to the original value
