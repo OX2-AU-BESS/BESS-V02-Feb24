@@ -1,3 +1,10 @@
+"""
+Created on 22/03/2024 
+
+Implements pre-optimisation/post optimisation data processing
+
+@ Revised/restructured: Mojtaba Jabbari Ghadi
+"""
 import time
 import pandas as pd
 

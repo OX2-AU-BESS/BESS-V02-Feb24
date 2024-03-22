@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Tue Feb 28 11:35:29 2023
 
@@ -580,7 +579,6 @@ class dispatch_optimiser:
             year = start_year_diff-15
             matched_row = bat_deg_df.loc[bat_deg_df['Project Year'] == year]
             self.gen.bat_capacity = matched_row['Usable Capacity'].iloc[0]*self.init_bat_capacity
-        #self.gen.discharge(self.optimisation_res/60*battery_total)
         # del  forecasts,actuals,battery_discharge,battery_charge,solar_dispatch,raise6sec,raise60sec,raise5min,raisereg,lower6sec,lower60sec,lower5min,lowerreg,solar_dispatch_vec,battery_energy,battery_discharge_vec,battery_charge_vec,battery_dispatch_vec,raise6sec_disp_vec ,raise60sec_disp_vec,raise5min_disp_vec,raisereg_disp_vec,lower6sec_disp_vec,lower60sec_disp_vec,lower5min_disp_vec,lowerreg_disp_vec,SOC_vec
         del  forecasts,battery_discharge,battery_charge,solar_dispatch,raise6sec,raise60sec,raise5min,raisereg,lower6sec,lower60sec,lower5min,lowerreg,solar_dispatch_vec,battery_energy,battery_discharge_vec,battery_charge_vec,battery_dispatch_vec,raise6sec_disp_vec ,raise60sec_disp_vec,raise5min_disp_vec,raisereg_disp_vec,lower6sec_disp_vec,lower60sec_disp_vec,lower5min_disp_vec,lowerreg_disp_vec,SOC_vec
         gc.collect()         
