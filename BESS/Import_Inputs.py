@@ -15,20 +15,33 @@ def Import_Data():
 
     #  ------ Get directory for 'Input' folder -------------------------------------
     InputFolderPath     = os.path.join(Parent_directory, Input_folder)
-                    
-    #  ------ Import data from different tabs of 'Project Information' file --------                
-    Inputs  = pd.read_excel(project_information, sheet_name='Inputs')
-    Inputs  = dict(zip(Inputs ['identifier'], Inputs ['value']))
 
-    Inputs['InputFolderPath'    ] = InputFolderPath
-    Inputs['forecast_path'      ] = os.path.join(Parent_directory, Input_folder, Inputs['forecast_data_path'])
-    
-     #  ------ Import price forecaset csv make it ready for simulation -------------                   
-    Price_forecast_df             = pd.read_csv(os.path.join(Inputs['InputFolderPath'], Inputs['Price forecast file']))
-    Price_forecast_df             = Import_Inputs.Reformat_Forecats_Prices(Price_forecast_df, Inputs['forecast_Company']) # Change name of columns in Aurora/Baringa price forecast 
-    Inputs['Price_forecast_df'  ] = Price_forecast_df
+    #  ------ Import data from ScenarioManager tab of 'Project Information' file ---
+    Scenario      = pd.read_excel(project_information, sheet_name='ScenarioManager')
+    Scenario_List = dict(zip(Scenario ['Parameter'], Scenario ['Value']))
+
+    Sce_digits    = [int(digit) for digit in Scenario_List['Scenarios list'].split(',')]
+
+    inputs_list = []
+    for scenario in Sce_digits:
+                  
+        #  ------ Import data from different tabs of 'Project Information' file --------                
+        Inputs  = pd.read_excel(project_information, sheet_name=Scenario_List['Project Sheet'])
+        Inputs  = dict(zip(Inputs ['Parameter'], Inputs [str(scenario)]))
+
+        Inputs['InputFolderPath'    ] = InputFolderPath
+        Inputs['forecast_path'      ] = os.path.join(Parent_directory, Input_folder, Inputs['forecast_data_path'])
+        
+        #  ------ Import price forecaset csv make it ready for simulation -------------                   
+        Price_forecast_df             = pd.read_csv(os.path.join(Inputs['InputFolderPath'], Inputs['Price forecast file']))
+        Price_forecast_df             = Import_Inputs.Reformat_Forecats_Prices(Price_forecast_df, Inputs['forecast_Company']) # Change name of columns in Aurora/Baringa price forecast 
+        Inputs['Price_forecast_df'  ] = Price_forecast_df
+
+        inputs_list.append(Inputs)
+
+
    
-    return Inputs
+    return inputs_list
 
 
 # ======================================================================================

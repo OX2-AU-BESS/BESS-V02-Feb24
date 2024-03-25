@@ -117,19 +117,19 @@ def main_solve(start_date, end_date, Inputs):
 
 if __name__ == "__main__":
         
-    Inputs = Import_Inputs. Import_Data()
+    inputs_list = Import_Inputs. Import_Data()
+    start_time        = time . time  ()   
+    for Inputs in inputs_list:
+        current_directory = os   . getcwd()
+        parent_directory  = os   . path. dirname(current_directory)
+        OutPut_directory  = "Output"
+        Output_SubFolder  = time . strftime("%B-%d %H_%M", time. localtime(start_time)) +" "+Inputs['Scenario Name']
+        OutputFolder_path = os   . path. join (parent_directory, OutPut_directory, Output_SubFolder)
+        Inputs['output_directory'] = OutputFolder_path
+        scenario.create_folder(OutputFolder_path)
     
-    start_time        = time . time  ()
-    current_directory = os   . getcwd()
-    parent_directory  = os   . path. dirname(current_directory)
-    OutPut_directory  = "Output"
-    Output_SubFolder  = time . strftime("%B-%d %H_%M", time. localtime(start_time)) +" "+Inputs['Scenario Name']
-    OutputFolder_path = os   . path. join (parent_directory, OutPut_directory, Output_SubFolder)
-    Inputs['output_directory'] = OutputFolder_path
-    scenario.create_folder(OutputFolder_path)
-   
-    df = run_script_multiprocessing(Inputs)
-    #df.to_csv(folder_path+r"\\concatenated_results.csv",index=False)
+        df = run_script_multiprocessing(Inputs)
+        #df.to_csv(folder_path+r"\\concatenated_results.csv",index=False)
     end_time = time.time()
     execution_time = end_time - start_time
     print(f"The execution time: {execution_time}")
