@@ -162,9 +162,6 @@ class dispatch_optimiser:
             
          # ------- Form and add 'self.result' dataframe (i.e., Output datafram) -----
         self= Data_Processing.SelectingNaming_OutputVariables(self)
-
-        # Save the csv file of full resul
-        Data_Processing.save_results(self)
         
         self.results = self.results.drop(self.results.index[0])
         # Restore stdout to the original value

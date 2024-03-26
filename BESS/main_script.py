@@ -16,6 +16,7 @@ import dispatch_optimiser
 import Import_Inputs
 import scenario
 import Massage_lists
+import Data_Processing
 from   dispatch_optimiser import dispatch_optimiser
 from   generator          import Generator as gen
 from   scenario           import Scenario  as scn  
@@ -148,8 +149,8 @@ if __name__ == "__main__":
         
             Full_Results = run_script_multiprocessing(Inputs)
               
-            # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  
-            # here we need to save them with its name
+            # Save the csv file of full resul
+            Data_Processing.save_results(Inputs, Full_Results)
 
             z=0
             #df.to_csv(folder_path+r"\\concatenated_results.csv",index=False)

@@ -60,8 +60,8 @@ def SelectingNaming_OutputVariables(self):
     return self
 
 # ------------- Saving results ---------------------------------------------------  
-def save_results(self):
+def save_results(Inputs, Full_Results):
     # Get current time
     Time_now = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-    self.results.to_csv(self.output_directory+"\\"+" Full_Dispatch "+Time_now+" .csv", index=False)
+    Full_Results.to_csv(Inputs['output_directory']+"\\"+" Full_Dispatch "+Time_now+" .csv", index=False)
     pass

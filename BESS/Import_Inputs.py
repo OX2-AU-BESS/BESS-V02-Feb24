@@ -98,7 +98,7 @@ def Reformat_Forecats_Prices(Price_forecast, data_input):
         Price_forecast[i] = Price_forecast[i].apply(lambda x: float(x))   
 
     #  --- Allocate Timestamp column values to index and remove Timestamp column ----------------
-    Price_forecast . set_index  (Price_forecast["Timestamp"] , inplace=True,drop=True )
+    Price_forecast . set_index  (Price_forecast["Timestamp"] , inplace=True, drop=True )
     Price_forecast . drop       ('Timestamp'                 , axis=1   , inplace=True)
             
     return Price_forecast
