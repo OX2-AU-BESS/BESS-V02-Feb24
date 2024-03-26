@@ -156,7 +156,7 @@ class dispatch_optimiser:
             
             print("Elapsed time:", round(elapsed_time,2), "seconds")
             proc_end_time = datetime.fromtimestamp(end_time_act)
-            hour = proc_end_time.hour
+            hour   = proc_end_time.hour
             minute = proc_end_time.minute
         
             print(f"Current time: {hour}:{minute} \n")

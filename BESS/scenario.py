@@ -47,8 +47,8 @@ def divide_period(start_date, end_date):
             end_of_month = end_date
         
         # Add timestamp for the current month
-        timestamps.append((current_date.strftime("%d/%m/%Y"), (end_of_month+ timedelta(days=1)).strftime("%d/%m/%Y")))
-        # timestamps.append((current_date.strftime("%d/%m/%Y"), (end_of_month).strftime("%d/%m/%Y")))
+        # timestamps.append((current_date.strftime("%d/%m/%Y"), (end_of_month+ timedelta(days=1)).strftime("%d/%m/%Y")))
+        timestamps.append((current_date.strftime("%d/%m/%Y"), (end_of_month).strftime("%d/%m/%Y")))
         # Move to the next month
         current_date = end_of_month + timedelta(days=1)
     return timestamps
