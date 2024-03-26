@@ -101,7 +101,7 @@ class dispatch_optimiser:
     
         
     #========================================================================================
-    # ============== Printing the parameters ================================================
+    # ============== Running otimisatio algorithm ===========================================
     def optimise_dispatch(self):
         
         # ------- set start and end times ----------------------------------------
@@ -136,7 +136,6 @@ class dispatch_optimiser:
                 pass
             elif current_time in group_dates:
                 matching_index  = Price_forecast        .index.get_loc(current_time)
-                # fore_df_cur     = fore_df        .iloc[matching_index : matching_index+self.foresight_period]
                 forecast_df_cur = Price_forecast .iloc[matching_index : matching_index+self.foresight_period]
                 start_time_act  = time.time()                  
                 # calculate dispatch for current time
@@ -159,9 +158,7 @@ class dispatch_optimiser:
             hour   = proc_end_time.hour
             minute = proc_end_time.minute
         
-            print(f"Current time: {hour}:{minute} \n")
-        #print("finished")
-            
+            print(f"Current time: {hour}:{minute} \n")           
             
          # ------- Form and add 'self.result' dataframe (i.e., Output datafram) -----
         self= Data_Processing.SelectingNaming_OutputVariables(self)
