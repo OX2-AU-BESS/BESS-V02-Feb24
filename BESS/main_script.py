@@ -26,25 +26,33 @@ def run_script_multiprocessing(Inputs):
     Multi_Processing= Inputs['Multi-Processing']
 
     # Example usage
-    start_date = Inputs['start_timestamp'] 
-    end_date   = Inputs['end_timestamp'  ] 
-    TimeStamps = scenario.divide_period(start_date, end_date)
-      
+    start_date   = Inputs['start_timestamp'] 
+    end_date     = Inputs['end_timestamp'  ] 
+    TimeStamps   = scenario.divide_period(start_date, end_date)
+    Full_Results = pd.DataFrame()  
     if Multi_Processing:
         #  Multiprocessing
         num_cores = multiprocessing.cpu_count()
         # num_cores = 1
         print(f"Number of CPU cores: {num_cores}")
-        pool      = multiprocessing.Pool(processes=num_cores)
-                    
+        pool      = multiprocessing.Pool(processes=num_cores)   
+
         # Run over all possible combinations of months and years
-        pool. starmap(main_solve, [(StartDate, EndDate, Inputs) for StartDate, EndDate in TimeStamps])
+        Results=pool. starmap(main_solve, [(StartDate, EndDate, Inputs) for StartDate, EndDate in TimeStamps])
         pool.close()
-        pool.join()
+        pool.join ()
+        for result in Results:
+            Full_Results=pd.concat([Full_Results, result], axis=0)
+
     else:
         for StartDate, EndDate in TimeStamps:
-            main_solve(StartDate, EndDate, Inputs)
-            z=0  
+            result = main_solve(StartDate, EndDate, Inputs)
+            Full_Results=pd.concat([Full_Results, result], axis=0)
+
+    return Full_Results        
+
+
+
 
 #========================================================================================
 # ============== Main solver of the algorithm =========================================== 
@@ -107,8 +115,9 @@ def main_solve(start_date, end_date, Inputs):
     
     #  ------ optimisation ---------------------------------------------------------
     optimisation = dispatch_optimiser(generator, scenario, solver_parameters)  # Construct optimisation variable
-    optimisation . optimise_dispatch()     
-    
+    RunResult= optimisation . optimise_dispatch()     
+    z=0
+    return RunResult
     #optimisation.save_results(r"C:\Users\SIMULATION\ESCO Pacific\ESCO - Data\36. Design\Tools\BatteryModel\Pythonscripts\PulpSolver_MervBranch\results")
     #report.init(output_directory, "full") #report object allows to specify type of report that we want. This can be refined quite a bit and can take more input parameters.
     #report.generate_report(generator, scn, optimisation.results)
@@ -137,7 +146,12 @@ if __name__ == "__main__":
             Inputs['output_directory'] = OutputFolder_path
             scenario.create_folder(OutputFolder_path)
         
-            df = run_script_multiprocessing(Inputs)
+            Full_Results = run_script_multiprocessing(Inputs)
+              
+            # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  
+            # here we need to save them with its name
+
+            z=0
             #df.to_csv(folder_path+r"\\concatenated_results.csv",index=False)
     end_time = time.time()
     execution_time = end_time - start_time
