@@ -10,22 +10,23 @@ import os
 import pandas as pd
 
 class Generator:
-    def __init__(self, gen_params):
-        self.plant_max_MW           = gen_params['plant_max_MW'             ]
-        self.plant_min_MW           = gen_params['plant_min_MW'             ]
-        self.solar_MW_rating        = gen_params['solar_MW_rating'          ]
-        self.bat_max_MW             = gen_params['bat_max_MW'               ]
-        self.bat_min_MW             = gen_params['bat_min_MW'               ]
-        self.bat_capacity           = gen_params['bat_capacity'             ]
-        self.min_SOC                = gen_params['min_SOC'                  ]
-        self.max_SOC                = gen_params['max_SOC'                  ]
-        self.mlf_gen                = gen_params['marginal_loss_factor_gen' ]
-        self.mlf_load               = gen_params['marginal_loss_factor_load']
-        self.round_trip_efficiency  = gen_params['round_trip_efficiency'    ]
-        self.solar_gen_profile_path = gen_params['solar_gen_profile'        ]
+    def __init__(self, Inputs):
+
+        self.plant_max_MW           = Inputs['plant_max_MW'             ]
+        self.plant_min_MW           = Inputs['plant_min_MW'             ]
+        self.solar_MW_rating        = Inputs['solar_MW_rating'          ]
+        self.bat_max_MW             = Inputs['bat_max_MW'               ]
+        self.bat_min_MW             = Inputs['bat_min_MW'               ]
+        self.bat_capacity           = Inputs['bat_capacity'             ]
+        self.min_SOC                = Inputs['min_SOC'                  ]
+        self.max_SOC                = Inputs['max_SOC'                  ]
+        self.mlf_gen                = Inputs['marginal_loss_factor_gen' ]
+        self.mlf_load               = Inputs['marginal_loss_factor_load']
+        self.round_trip_efficiency  = Inputs['round_trip_efficiency'    ]
+        self.solar_gen_profile_path = Inputs['InputFolderPath'          ] + "\\" + Inputs['solar_gen_profile']
         self.solar_gen_profile      = []
-        self.bat_deg_profile        = gen_params['bat_deg_profile'          ]
-        self.location               = gen_params['location'                 ]
+        self.bat_deg_profile        = Inputs['InputFolderPath'          ] + "\\" + Inputs['bat_deg_profile'  ]
+        self.location               = Inputs['location'                 ]
         self.SOC                    = 0
 
 

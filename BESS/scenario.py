@@ -8,21 +8,22 @@ from    datetime   import datetime, timedelta
 import  os
 
 class Scenario:
-    def __init__(self, scenario_params):
-        self.start_timestamp            = scenario_params['start_timestamp'             ]
-        self.overall_start_timestamp    = scenario_params['overall_start_time'          ]
-        self.end_timestamp              = scenario_params['end_timestamp'               ]
-        self.battery_SOC                = scenario_params['battery_SOC'                 ]
-        self.target_SOC                 = scenario_params['target_SOC'                  ] 
-        self.SoC_tolerance              = scenario_params['SoC_tolerance'               ]
-        self.max_cycles                 = scenario_params['max_cycles'                  ]
-        self.FCAS_occurance             = scenario_params['FCAS_occurance'              ]
-        self.FCAS_MW_Participation_Reg  = scenario_params['FCAS_MW_Participation_Reg'   ]
-        self.FCAS_MW_Participation_Cont = scenario_params['FCAS_MW_Participation_Cont'  ]
-        self.LGC_price                  = scenario_params['LGC_price'                   ]
-        self.max_FCAS_percent           = scenario_params['max_FCAS_percent'            ]
-        self.data_source                = scenario_params['data_source'                 ]
-        self.export_limits              = scenario_params['export_limits'               ]
+    def __init__(self, start_date, end_date, Inputs):
+
+        self.start_timestamp            = start_date
+        self.end_timestamp              = end_date
+        self.overall_start_timestamp    = Inputs['overall_start_time'          ]
+        self.battery_SOC                = Inputs['battery_SOC'                 ]
+        self.target_SOC                 = Inputs['target_SOC'                  ] 
+        self.SoC_tolerance              = Inputs['SoC_tolerance'               ]
+        self.max_cycles                 = Inputs['max_cycles'                  ]
+        self.FCAS_occurance             = Inputs['FCAS_occurrence'             ]
+        self.FCAS_MW_Participation_Reg  = Inputs['FCAS_Participation_Reg'    ]
+        self.FCAS_MW_Participation_Cont = Inputs['FCAS_Participation_Cont'   ]
+        self.LGC_price                  = Inputs['LGC_price'                   ]
+        self.max_FCAS_percent           = Inputs['max_FCAS_percent'            ]
+        self.data_source                = 'auto'
+        self.export_limits              = []
     
 
 #========================================================================================

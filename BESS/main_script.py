@@ -60,39 +60,9 @@ def run_script_multiprocessing(Inputs):
 def main_solve(start_date, end_date, Inputs):   
 
     #  ------ Get input plant/scenario/solver parameters ---------------------------   
-    plant_parameters={
-                    'plant_max_MW'              :Inputs['plant_max_MW'              ],
-                    'plant_min_MW'              :Inputs['plant_min_MW'              ],
-                    'solar_MW_rating'           :Inputs['solar_MW_rating'           ],
-                    'bat_max_MW'                :Inputs['bat_max_MW'                ],
-                    'bat_min_MW'                :Inputs['bat_min_MW'                ],
-                    'bat_capacity'              :Inputs['bat_capacity'              ],
-                    'min_SOC'                   :Inputs['min_SOC'                   ],
-                    'max_SOC'                   :Inputs['max_SOC'                   ],  
-                    'marginal_loss_factor_gen'  :Inputs['marginal_loss_factor_gen'  ],
-                    'marginal_loss_factor_load' :Inputs['marginal_loss_factor_load' ],
-                    'round_trip_efficiency'     :Inputs['round_trip_efficiency'     ],
-                    'location'                  :Inputs['location'                  ]+'1',
-                    'bat_deg_profile'           :Inputs['InputFolderPath'] + "\\" + Inputs['bat_deg_profile'  ],
-                    'solar_gen_profile'         :Inputs['InputFolderPath'] + "\\" + Inputs['solar_gen_profile'],
-                    }
+
     
-    scenario_parameters={
-                    'start_timestamp'           :start_date                          , 
-                    'end_timestamp'             :end_date                            , 
-                    'overall_start_time'        :Inputs['overall_start_time'        ],
-                    'battery_SOC'               :Inputs['battery_SOC'               ],
-                    'target_SOC'                :Inputs['target_SOC'                ],
-                    'SoC_tolerance'             :Inputs['SoC_tolerance'             ],
-                    'max_cycles'                :Inputs['max_cycles'                ],            
-                    'FCAS_occurance'            :Inputs['FCAS_occurrence'           ], #chance of an FCAS contingency event during any 30min time period, 0 < x <= 1.0
-                    'FCAS_MW_Participation_Reg' :Inputs['FCAS_Participation_Reg'    ],
-                    'FCAS_MW_Participation_Cont':Inputs['FCAS_Participation_Cont'   ], #% of battery SoC  
-                    'LGC_price'                 :Inputs['LGC_price'                 ],
-                    'max_FCAS_percent'          :Inputs['max_FCAS_percent'          ], #percentage limit defining what part of the battery can be used for FCAS
-                    'data_source'               :'auto'                              , #automatically selects data based on time frame specified and data available
-                    'export_limits'             :[]
-                    }
+
     
     solver_parameters={
                     'optimisation_res'          :Inputs['optimisation_res'          ], #time interval lengt in minutes after which the dispatch otimisation to the end of intraday forecast period is carried out
@@ -106,10 +76,10 @@ def main_solve(start_date, end_date, Inputs):
                       }
     
     #  ------ Get information of generator -----------------------------------------   
-    generator = gen(plant_parameters)   
+    generator = gen(Inputs)   
 
     #  ------ Get details of scenario ----------------------------------------------
-    scenario  = scn(scenario_parameters)
+    scenario  = scn(start_date, end_date, Inputs)
 
     #  ------ Get SOC of scenario --------------------------------------------------
     generator.set_SOC(scenario.battery_SOC)
@@ -117,11 +87,8 @@ def main_solve(start_date, end_date, Inputs):
     #  ------ optimisation ---------------------------------------------------------
     optimisation = dispatch_optimiser(generator, scenario, solver_parameters)  # Construct optimisation variable
     RunResult= optimisation . optimise_dispatch()     
-    z=0
+
     return RunResult
-    #optimisation.save_results(r"C:\Users\SIMULATION\ESCO Pacific\ESCO - Data\36. Design\Tools\BatteryModel\Pythonscripts\PulpSolver_MervBranch\results")
-    #report.init(output_directory, "full") #report object allows to specify type of report that we want. This can be refined quite a bit and can take more input parameters.
-    #report.generate_report(generator, scn, optimisation.results)
 
 #========================================================================================
 # ============== Main algorithm body ==================================================== 
@@ -133,7 +100,7 @@ if __name__ == "__main__":
 
     if  not Scenarios_list:
         # List of scenarios is empty because
-        # All scenarios are False in row 'To run simulation' of scenario manger
+        # All scenarios are False in Project information.xlsx, row 'To run simulation' 
         Massage_lists.NoSelectedScenario()
 
     else:
@@ -152,8 +119,6 @@ if __name__ == "__main__":
             # Save the csv file of full resul
             Data_Processing.save_results(Inputs, Full_Results)
 
-            z=0
-            #df.to_csv(folder_path+r"\\concatenated_results.csv",index=False)
     end_time = time.time()
     execution_time = end_time - start_time
     print(f"The execution time: {execution_time}")
