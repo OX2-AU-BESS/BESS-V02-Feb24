@@ -12,16 +12,16 @@ class Scenario:
 
         self.start_timestamp            = start_date
         self.end_timestamp              = end_date
-        self.overall_start_timestamp    = Inputs['overall_start_time'          ]
-        self.battery_SOC                = Inputs['battery_SOC'                 ]
-        self.target_SOC                 = Inputs['target_SOC'                  ] 
-        self.SoC_tolerance              = Inputs['SoC_tolerance'               ]
-        self.max_cycles                 = Inputs['max_cycles'                  ]
-        self.FCAS_occurance             = Inputs['FCAS_occurrence'             ]
-        self.FCAS_MW_Participation_Reg  = Inputs['FCAS_Participation_Reg'    ]
-        self.FCAS_MW_Participation_Cont = Inputs['FCAS_Participation_Cont'   ]
-        self.LGC_price                  = Inputs['LGC_price'                   ]
-        self.max_FCAS_percent           = Inputs['max_FCAS_percent'            ]
+        self.overall_start_timestamp    = Inputs['overall_start_time'      ]
+        self.battery_SOC                = Inputs['battery_SOC'             ]
+        self.target_SOC                 = Inputs['target_SOC'              ] 
+        self.SoC_tolerance              = Inputs['SoC_tolerance'           ]
+        self.max_cycles                 = Inputs['max_cycles'              ]
+        self.FCAS_occurance             = Inputs['FCAS_occurrence'         ]
+        self.FCAS_MW_Participation_Reg  = Inputs['FCAS_Participation_Reg'  ]
+        self.FCAS_MW_Participation_Cont = Inputs['FCAS_Participation_Cont' ]
+        self.LGC_price                  = Inputs['LGC_price'               ]
+        self.max_FCAS_percent           = Inputs['max_FCAS_percent'        ]
         self.data_source                = 'auto'
         self.export_limits              = []
     

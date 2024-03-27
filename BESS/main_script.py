@@ -63,18 +63,7 @@ def main_solve(start_date, end_date, Inputs):
 
     
 
-    
-    solver_parameters={
-                    'optimisation_res'          :Inputs['optimisation_res'          ], #time interval lengt in minutes after which the dispatch otimisation to the end of intraday forecast period is carried out
-                    'forecast_res'              :Inputs['forecast_res'              ], #time resolution of the forecast data to be used.
-                    'forecast_data_path'        :Inputs['forecast_path'             ],
-                    'revenue_method'            :Inputs['revenue_method'            ],
-                    'Price_forecast_df'         :Inputs['Price_forecast_df'         ],
-                    'output_directory'          :Inputs['output_directory'          ],
-                    'foresight_period'          :Inputs['foresight_period'          ],
-                    'Saving_period'             :Inputs['Saving_period'             ],
-                      }
-    
+
     #  ------ Get information of generator -----------------------------------------   
     generator = gen(Inputs)   
 
@@ -85,7 +74,7 @@ def main_solve(start_date, end_date, Inputs):
     generator.set_SOC(scenario.battery_SOC)
     
     #  ------ optimisation ---------------------------------------------------------
-    optimisation = dispatch_optimiser(generator, scenario, solver_parameters)  # Construct optimisation variable
+    optimisation = dispatch_optimiser(generator, scenario, Inputs)  # Construct optimisation variable
     RunResult= optimisation . optimise_dispatch()     
 
     return RunResult
