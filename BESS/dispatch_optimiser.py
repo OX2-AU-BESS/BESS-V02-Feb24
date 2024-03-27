@@ -198,28 +198,27 @@ class dispatch_optimiser:
 
 
         #-------------------- PROBLEM DEFINITION in PULP --------------------------
-        #print("Building problem definitions and variables.....")
-        eff  = (1-self.gen.round_trip_efficiency)/2.0 #efficienty offset of typically 5% in both directions              
+        eff  = np.sqrt(self.gen.round_trip_efficiency)  # Considering Eff_Charge = Eff_DisCharge          
         prob = p.LpProblem("dispatch", p.LpMaximize)
 
 
         #-------------------- define decision variables ---------------------------
         #--------------------------------------------------------------------------
         RANGE             = range(0,opt_len)
-        solar_dispatch    = p.LpVariable.dicts('S'  , RANGE, lowBound=0                  , upBound=self.gen.solar_MW_rating) # define optimisation variables for solar dispatch, include hard limits of inverter capability
-        battery_discharge = p.LpVariable.dicts('B_D', RANGE, lowBound=0                  , upBound=self.gen.bat_max_MW     ) # define optimisation variables for battery inverter dispatch, include hard limits of inverter capability
-        battery_charge    = p.LpVariable.dicts('B_C', RANGE, lowBound=self.gen.bat_min_MW, upBound=0                       )
+        solar_dispatch    = p.LpVariable.dicts('S'  , RANGE, lowBound = 0                  , upBound = self.gen.solar_MW_rating) # define optimisation variables for solar dispatch, include hard limits of inverter capability
+        battery_discharge = p.LpVariable.dicts('B_D', RANGE, lowBound = 0                  , upBound = self.gen.bat_max_MW     ) # define optimisation variables for battery inverter dispatch, include hard limits of inverter capability
+        battery_charge    = p.LpVariable.dicts('B_C', RANGE, lowBound = self.gen.bat_min_MW, upBound = 0                       )
 
 
         #-------------------- variables for fcas markets --------------------------
-        raise6sec   = p.LpVariable.dicts('R_6sec' , RANGE, lowBound=0                                                      , upBound=self.gen.bat_max_MW*self.scn.FCAS_MW_Participation_Cont)
-        raise60sec  = p.LpVariable.dicts('R_60sec', RANGE, lowBound=0                                                      , upBound=self.gen.bat_max_MW*self.scn.FCAS_MW_Participation_Cont)
-        raise5min   = p.LpVariable.dicts('R_5min' , RANGE, lowBound=0                                                      , upBound=self.gen.bat_max_MW*self.scn.FCAS_MW_Participation_Cont)
-        raisereg    = p.LpVariable.dicts('R_Reg'  , RANGE, lowBound=0                                                      , upBound=self.gen.bat_max_MW*self.scn.FCAS_MW_Participation_Reg )
-        lower6sec   = p.LpVariable.dicts('L_6sec' , RANGE, lowBound=self.gen.bat_min_MW*self.scn.FCAS_MW_Participation_Cont, upBound=0                                                      )
-        lower60sec  = p.LpVariable.dicts('L_60sec', RANGE, lowBound=self.gen.bat_min_MW*self.scn.FCAS_MW_Participation_Cont, upBound=0                                                      )
-        lower5min   = p.LpVariable.dicts('L_5min' , RANGE, lowBound=self.gen.bat_min_MW*self.scn.FCAS_MW_Participation_Cont, upBound=0                                                      )
-        lowerreg    = p.LpVariable.dicts('L_Reg'  , RANGE, lowBound=self.gen.bat_min_MW*self.scn.FCAS_MW_Participation_Reg , upBound=0                                                      )
+        raise6sec   = p.LpVariable.dicts('R_6sec' , RANGE, lowBound = 0                                                      , upBound = self.gen.bat_max_MW*self.scn.FCAS_MW_Participation_Cont)
+        raise60sec  = p.LpVariable.dicts('R_60sec', RANGE, lowBound = 0                                                      , upBound = self.gen.bat_max_MW*self.scn.FCAS_MW_Participation_Cont)
+        raise5min   = p.LpVariable.dicts('R_5min' , RANGE, lowBound = 0                                                      , upBound = self.gen.bat_max_MW*self.scn.FCAS_MW_Participation_Cont)
+        raisereg    = p.LpVariable.dicts('R_Reg'  , RANGE, lowBound = 0                                                      , upBound = self.gen.bat_max_MW*self.scn.FCAS_MW_Participation_Reg )
+        lower6sec   = p.LpVariable.dicts('L_6sec' , RANGE, lowBound = self.gen.bat_min_MW*self.scn.FCAS_MW_Participation_Cont, upBound = 0                                                      )
+        lower60sec  = p.LpVariable.dicts('L_60sec', RANGE, lowBound = self.gen.bat_min_MW*self.scn.FCAS_MW_Participation_Cont, upBound = 0                                                      )
+        lower5min   = p.LpVariable.dicts('L_5min' , RANGE, lowBound = self.gen.bat_min_MW*self.scn.FCAS_MW_Participation_Cont, upBound = 0                                                      )
+        lowerreg    = p.LpVariable.dicts('L_Reg'  , RANGE, lowBound = self.gen.bat_min_MW*self.scn.FCAS_MW_Participation_Reg , upBound = 0                                                      )
         #my_vars = [solar_dispatch,battery_discharge,battery_charge,raise6sec,raise60sec,raise5min,raisereg,lower6sec,lower60sec,lower5min,lowerreg]
 
 
