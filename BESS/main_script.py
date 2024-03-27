@@ -72,7 +72,7 @@ def main_solve(start_date, end_date, Inputs):
     
     #  ------ optimisation ---------------------------------------------------------
     Optimisation_Variables = dispatch_optimiser(generator, scenario, Inputs)  # Construct optimisation variable
-    RunResult             = Optimisation_Variables . optimise_dispatch()      # Run optimisation algorithm
+    RunResult              = Optimisation_Variables . optimise_dispatch()      # Run optimisation algorithm
 
     return RunResult
 

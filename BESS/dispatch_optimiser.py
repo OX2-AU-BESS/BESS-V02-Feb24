@@ -29,7 +29,7 @@ class dispatch_optimiser:
         self.gen                    = gen        
         self.scn                    = scn        
         self.optimisation_res       = Inputs['optimisation_res'   ]
-        self.forecast_res           = Inputs['forecast_res'       ]
+        # self.forecast_res           = Inputs['forecast_res'       ]
         self.forecast_data_path     = Inputs['forecast_path'      ]
         self.Price_forecast_df      = Inputs['Price_forecast_df'  ]
         self.revenue_method         = Inputs['revenue_method'     ]
@@ -114,8 +114,8 @@ class dispatch_optimiser:
         end_time     = datetime.strptime(self.scn.end_timestamp  , date_format)
         
         # ------- set time resolution to 1 hour ----------------------------------
-        time_resolution = timedelta(minutes=1440)
-                
+        time_resolution = timedelta(minutes=self.foresight_period* self.optimisation_res)
+               
         # ------- loop over time frame with set resolution  ----------------------
         current_time = start_time        
         self.results_file_path = self.output_directory+"\\"+start_time.strftime("%Y-%m-%d")+"_"+"_results.csv"
@@ -139,7 +139,7 @@ class dispatch_optimiser:
                 current_time += time_resolution
                 pass
             elif current_time in group_dates:
-                matching_index  = Price_forecast        .index.get_loc(current_time)
+                matching_index  = Price_forecast .index.get_loc(current_time)
                 forecast_df_cur = Price_forecast .iloc[matching_index : matching_index+self.foresight_period]
                 start_time_act  = time.time()                  
                 # calculate dispatch for current time
