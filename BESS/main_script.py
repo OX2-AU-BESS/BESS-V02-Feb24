@@ -48,6 +48,8 @@ def run_script_multiprocessing(Inputs):
             Full_Results=pd.concat([Full_Results, result], axis=0)
 
     # --------- Series computing ---------------------------
+    # NOTE: To get the same result and SOS of parallel computing, it runs over 'TimeStamps';
+    #        otherwise should get 'start_date' and 'end_date' for a single run
     else:
         for StartDate, EndDate in TimeStamps:
             result       = main_solve(StartDate, EndDate, Inputs   )
@@ -83,8 +85,8 @@ if __name__ == "__main__":
     start_time  = time . time  ()
 
     if  not Scenarios_list:
-        # List of scenarios is empty because
-        # All scenarios are False in Project information.xlsx, row 'To run simulation' 
+        # Scenario List is empty because all scenarios are 'FALSE'
+        # in 'Project information.xlsx', row 'To run simulation' 
         Massage_lists.NoSelectedScenario()
 
     else:
