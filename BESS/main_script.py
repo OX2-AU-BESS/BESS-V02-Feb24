@@ -71,8 +71,8 @@ def main_solve(start_date, end_date, Inputs):
     generator.set_SOC(scenario.battery_SOC)
     
     #  ------ optimisation ---------------------------------------------------------
-    optimisation = dispatch_optimiser(generator, scenario, Inputs)  # Construct optimisation variable
-    RunResult    = optimisation . optimise_dispatch()     
+    OptimisationVariables = dispatch_optimiser(generator, scenario, Inputs)  # Construct optimisation variable
+    RunResult             = OptimisationVariables . optimise_dispatch()      # Run optimisation algorithm
 
     return RunResult
 
