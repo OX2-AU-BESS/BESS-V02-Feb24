@@ -31,8 +31,10 @@ def run_script_multiprocessing(Inputs):
     end_date     = Inputs['end_timestamp'  ] 
     TimeStamps   = scenario.divide_period(start_date, end_date)
     Full_Results = pd.DataFrame()  
-    if Multi_Processing:
-        #  Multiprocessing
+
+    # --------- Parallel computing ---------------------------
+    if Multi_Processing:   #  
+
         num_cores = multiprocessing.cpu_count()
         # num_cores = 1
         print(f"Number of CPU cores: {num_cores}")
@@ -45,24 +47,17 @@ def run_script_multiprocessing(Inputs):
         for result in Results:
             Full_Results=pd.concat([Full_Results, result], axis=0)
 
+    # --------- Series computing ---------------------------
     else:
         for StartDate, EndDate in TimeStamps:
-            result = main_solve(StartDate, EndDate, Inputs)
-            Full_Results=pd.concat([Full_Results, result], axis=0)
+            result       = main_solve(StartDate, EndDate, Inputs   )
+            Full_Results = pd.concat([Full_Results, result], axis=0)
 
     return Full_Results        
-
-
-
 
 #========================================================================================
 # ============== Main solver of the algorithm =========================================== 
 def main_solve(start_date, end_date, Inputs):   
-
-    #  ------ Get input plant/scenario/solver parameters ---------------------------   
-
-    
-
 
     #  ------ Get information of generator -----------------------------------------   
     generator = gen(Inputs)   
@@ -75,7 +70,7 @@ def main_solve(start_date, end_date, Inputs):
     
     #  ------ optimisation ---------------------------------------------------------
     optimisation = dispatch_optimiser(generator, scenario, Inputs)  # Construct optimisation variable
-    RunResult= optimisation . optimise_dispatch()     
+    RunResult    = optimisation . optimise_dispatch()     
 
     return RunResult
 
